@@ -34,14 +34,17 @@ public class LlmReuse {
             reused++;
             return known;
         }
-        LlmAnswer answer = call.get();
         calls++;
+        LlmAnswer answer = call.get();
         answers.put(List.copyOf(segments), answer);
         return answer;
     }
 
     /**
-     * 실제로 모델을 부른 횟수입니다.
+     * 모델을 부른 횟수입니다. 실패한 호출도 셉니다.
+     *
+     * 재시도는 구현 안에서 일어나므로 여기서는 입력 하나를 보낸 것을 한 번으로 셉니다.
+     * 실패한 답은 담지 않으므로, 같은 입력이 다시 오면 다시 부르고 다시 셉니다.
      */
     public int calls() {
         return calls;

@@ -60,15 +60,65 @@ class LlmAnswerParserTest {
     @Test
     @DisplayName("fields 나 evidence 가 빠지면 그 문서만 실패다")
     void 칸_빠짐() {
-        assertThatThrownBy(() -> LlmAnswerParser.parse(jsonMapper, "{\"fields\":{}}"))
-                .isInstanceOf(LlmDocumentException.class)
-                .hasMessageContaining("evidence");
+        String withoutEvidence = ModelAnswers.answer().json().replace(",\"evidence\":[]", "");
+
+        assertInvalid(withoutEvidence);
+    }
+
+    @Test
+    @DisplayName("스키마에 없는 속성이 맨 위에 있으면 그 문서만 실패다")
+    void 모르는_속성_맨_위() {
+        assertInvalid(ModelAnswers.answer().json().replaceFirst("\\{", "{\"note\":\"확인 필요\","));
+    }
+
+    @Test
+    @DisplayName("fields 안에 스무 칸이 아닌 칸이 있으면 그 문서만 실패다")
+    void 모르는_속성_칸() {
+        assertInvalid(ModelAnswers.answer().value("parking", true).json());
+    }
+
+    @Test
+    @DisplayName("스무 칸 중 하나가 빠지면 그 문서만 실패다 — 스키마는 스무 칸을 모두 요구한다")
+    void 조건_칸_빠짐() {
+        assertInvalid(ModelAnswers.answer().json().replace("\"scope\":null,", ""));
+    }
+
+    @Test
+    @DisplayName("null 인 근거 줄이 있으면 그 문서만 실패다")
+    void 근거_줄_null() {
+        assertInvalid(ModelAnswers.answer().json().replace("\"evidence\":[]", "\"evidence\":[null]"));
+    }
+
+    @Test
+    @DisplayName("조각 번호 목록이 null 이면 그 문서만 실패다")
+    void 번호_목록_null() {
+        assertInvalid(ModelAnswers.answer().value("leashRequired", true).json()
+                .replace("\"evidence\":[]", "\"evidence\":[{\"fieldName\":\"leashRequired\",\"segments\":null}]"));
+    }
+
+    @Test
+    @DisplayName("조각 번호에 null 이 섞이면 멀쩡한 번호만 추려 쓰지 않고 그 문서만 실패다")
+    void 번호_null_섞임() {
+        assertInvalid(ModelAnswers.answer().value("leashRequired", true).json()
+                .replace("\"evidence\":[]", "\"evidence\":[{\"fieldName\":\"leashRequired\",\"segments\":[2,null]}]"));
+    }
+
+    @Test
+    @DisplayName("근거의 칸 이름이 스무 칸이 아니면 그 문서만 실패다")
+    void 모르는_칸_이름() {
+        assertInvalid(ModelAnswers.answer().value("leashRequired", true).cite("parking", 1).json());
     }
 
     @Test
     @DisplayName("빈 답이면 그 문서만 실패다")
     void 빈_답() {
-        assertThatThrownBy(() -> LlmAnswerParser.parse(jsonMapper, "  "))
-                .isInstanceOf(LlmDocumentException.class);
+        assertInvalid("  ");
+    }
+
+    private void assertInvalid(String content) {
+        assertThatThrownBy(() -> LlmAnswerParser.parse(jsonMapper, content))
+                .isInstanceOf(LlmDocumentException.class)
+                .extracting(e -> ((LlmDocumentException) e).reason())
+                .isEqualTo(LlmDocumentException.Reason.INVALID_ANSWER);
     }
 }

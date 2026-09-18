@@ -2,6 +2,7 @@ package com.pawtrail.extract.application.service;
 
 import com.pawtrail.extract.application.support.LlmReuse;
 import com.pawtrail.extract.domain.enums.SizeRule;
+import com.pawtrail.extract.domain.exception.LlmDocumentException;
 import com.pawtrail.extract.domain.model.ConditionFields;
 import com.pawtrail.extract.domain.model.Evidence;
 import com.pawtrail.extract.domain.model.LlmAnswer;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class LlmExtractorTest {
 
@@ -71,6 +73,20 @@ class LlmExtractorTest {
     }
 
     @Test
+    @DisplayName("실패한 호출도 센다 — 실패한 답은 담지 않아 같은 입력이 오면 다시 부르고 다시 센다")
+    void 실패한_호출() {
+        provider.failure = new LlmDocumentException(LlmDocumentException.Reason.TRUNCATED, "잘림");
+        LlmReuse reuse = new LlmReuse();
+        List<SourceText> texts = List.of(new SourceText("반려동물 제한사항", "목줄, 배변봉투"));
+
+        assertThatThrownBy(() -> extractor.extract(texts, reuse)).isInstanceOf(LlmDocumentException.class);
+        assertThatThrownBy(() -> extractor.extract(texts, reuse)).isInstanceOf(LlmDocumentException.class);
+
+        assertThat(reuse.calls()).isEqualTo(2);
+        assertThat(reuse.reused()).isZero();
+    }
+
+    @Test
     @DisplayName("넘길 조각이 없으면 모델을 부르지 않는다")
     void 조각_없음() {
         LlmReading reading = extractor.extract(List.of(new SourceText("acmpyNeedMtr", " , ")), new LlmReuse());
@@ -90,10 +106,14 @@ class LlmExtractorTest {
 
         private final List<List<Segment>> received = new ArrayList<>();
         private LlmAnswer answer = new LlmAnswer(ConditionFields.empty(), List.of());
+        private RuntimeException failure;
 
         @Override
         public LlmAnswer read(List<Segment> segments) {
             received.add(segments);
+            if (failure != null) {
+                throw failure;
+            }
             return answer;
         }
 
