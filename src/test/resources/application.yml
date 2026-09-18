@@ -38,6 +38,13 @@ eureka:
 
 app:
   extract:
+    # 실행 루프 (ExtractProperties) — 값은 config 저장소 extract-service.yml 과 같게 둠
+    # 없으면 ExtractProperties 의 검증에 걸려 contextLoads 가 깨짐
+    chunk-size: 100
+    max-consecutive-failures: 5
+    policy:
+      read-timeout-seconds: 60
+
     # 조건을 읽는 언어 모델 (LlmProperties)
     #
     # 테스트는 모델을 부르지 않으므로 검증을 통과할 값만 둠
