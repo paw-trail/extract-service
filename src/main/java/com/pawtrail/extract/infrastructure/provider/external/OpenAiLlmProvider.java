@@ -17,7 +17,8 @@ import java.util.Map;
 /**
  * OpenAI(/v1/chat/completions)로 조건을 읽습니다.
  *
- * 배포에서 증분을 돌릴 때 설정 키 하나(app.extract.llm.provider: openai)로 바꿔 씁니다.
+ * 전량 적재와 배포의 증분 모두 이 구현을 씁니다 (app.extract.llm.provider: openai).
+ * 정확도 평가에서 로컬 Ollama 보다 정밀도 · 재현율이 모두 높았습니다.
  * 프롬프트 · 응답 스키마 · 입력 글은 Ollama 구현과 같은 것을 씁니다.
  * 빈을 LlmConfig 가 만드는 이유는 OllamaLlmProvider 와 같습니다.
  *
