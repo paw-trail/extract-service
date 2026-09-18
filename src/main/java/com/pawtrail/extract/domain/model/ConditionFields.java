@@ -4,6 +4,7 @@ import com.pawtrail.extract.domain.enums.BreedRule;
 import com.pawtrail.extract.domain.enums.ExtraFeeUnit;
 import com.pawtrail.extract.domain.enums.Scope;
 import com.pawtrail.extract.domain.enums.SizeRule;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +22,15 @@ import java.util.stream.Stream;
  * 판정이 둘을 다르게 다루므로 원문이 말하지 않은 칸은 반드시 비워 둡니다.
  *
  * 목록 칸도 같습니다. 빈 목록이 아니라 null 이 "정보 없음" 입니다.
+ *
+ * <b>빌더는 Lombok 이 만듭니다.</b>
+ * 규칙은 원문을 읽으며 채울 수 있는 칸만 채우므로 빌더로 하나씩 채웁니다.
+ * 손으로 쓰면 스무 칸이 필드 · 설정 메서드 · 생성자 인자에 세 번 되풀이되고,
+ * 같은 타입이 이어지는 칸(실내 · 실외 같은 Boolean)은 생성자 인자 순서가 뒤바뀌어도
+ * 컴파일이 통과해 값이 조용히 엇갈립니다. policy 의 PolicyFields 도 Lombok 빌더를 씁니다.
+ * 빌더 이름을 Builder 로 둔 것은 규칙이 ConditionFields.Builder 로 받아 쓰기 때문입니다.
  */
+@Builder(builderClassName = "Builder")
 public record ConditionFields(
         Scope scope,
         Boolean guideDogOnly,
@@ -56,10 +65,6 @@ public record ConditionFields(
         return builder().build();
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
      * 20칸이 전부 비었는지 봅니다.
      *
@@ -75,145 +80,5 @@ public record ConditionFields(
 
     private static List<String> copyOrNull(List<String> values) {
         return values == null ? null : List.copyOf(values);
-    }
-
-    /**
-     * 칸을 하나씩 채워 가며 만듭니다.
-     *
-     * 규칙은 원문을 읽으며 채울 수 있는 칸만 채우므로 생성자 인자 스무 개를 한 번에 맞추는 것보다
-     * 읽기 쉽고, 칸 순서를 잘못 넘기는 실수도 막습니다.
-     */
-    public static final class Builder {
-
-        private Scope scope;
-        private Boolean guideDogOnly;
-        private Boolean petOnly;
-        private Boolean indoorAllowed;
-        private Boolean outdoorAllowed;
-        private BigDecimal maxWeightKg;
-        private Boolean weightInclusive;
-        private Short maxCount;
-        private SizeRule sizeRule;
-        private BreedRule breedRule;
-        private Boolean carrierRequired;
-        private Boolean leashRequired;
-        private List<String> excludedZones;
-        private List<String> allowedZonesOnly;
-        private List<String> excludedDays;
-        private Integer extraFeeAmount;
-        private ExtraFeeUnit extraFeeUnit;
-        private List<String> requiredItems;
-        private Boolean vaccineProof;
-        private Boolean advanceInquiry;
-
-        private Builder() {
-        }
-
-        public Builder scope(Scope value) {
-            this.scope = value;
-            return this;
-        }
-
-        public Builder guideDogOnly(Boolean value) {
-            this.guideDogOnly = value;
-            return this;
-        }
-
-        public Builder petOnly(Boolean value) {
-            this.petOnly = value;
-            return this;
-        }
-
-        public Builder indoorAllowed(Boolean value) {
-            this.indoorAllowed = value;
-            return this;
-        }
-
-        public Builder outdoorAllowed(Boolean value) {
-            this.outdoorAllowed = value;
-            return this;
-        }
-
-        public Builder maxWeightKg(BigDecimal value) {
-            this.maxWeightKg = value;
-            return this;
-        }
-
-        public Builder weightInclusive(Boolean value) {
-            this.weightInclusive = value;
-            return this;
-        }
-
-        public Builder maxCount(Short value) {
-            this.maxCount = value;
-            return this;
-        }
-
-        public Builder sizeRule(SizeRule value) {
-            this.sizeRule = value;
-            return this;
-        }
-
-        public Builder breedRule(BreedRule value) {
-            this.breedRule = value;
-            return this;
-        }
-
-        public Builder carrierRequired(Boolean value) {
-            this.carrierRequired = value;
-            return this;
-        }
-
-        public Builder leashRequired(Boolean value) {
-            this.leashRequired = value;
-            return this;
-        }
-
-        public Builder excludedZones(List<String> value) {
-            this.excludedZones = value;
-            return this;
-        }
-
-        public Builder allowedZonesOnly(List<String> value) {
-            this.allowedZonesOnly = value;
-            return this;
-        }
-
-        public Builder excludedDays(List<String> value) {
-            this.excludedDays = value;
-            return this;
-        }
-
-        public Builder extraFeeAmount(Integer value) {
-            this.extraFeeAmount = value;
-            return this;
-        }
-
-        public Builder extraFeeUnit(ExtraFeeUnit value) {
-            this.extraFeeUnit = value;
-            return this;
-        }
-
-        public Builder requiredItems(List<String> value) {
-            this.requiredItems = value;
-            return this;
-        }
-
-        public Builder vaccineProof(Boolean value) {
-            this.vaccineProof = value;
-            return this;
-        }
-
-        public Builder advanceInquiry(Boolean value) {
-            this.advanceInquiry = value;
-            return this;
-        }
-
-        public ConditionFields build() {
-            return new ConditionFields(scope, guideDogOnly, petOnly, indoorAllowed, outdoorAllowed,
-                    maxWeightKg, weightInclusive, maxCount, sizeRule, breedRule,
-                    carrierRequired, leashRequired, excludedZones, allowedZonesOnly, excludedDays,
-                    extraFeeAmount, extraFeeUnit, requiredItems, vaccineProof, advanceInquiry);
-        }
     }
 }
