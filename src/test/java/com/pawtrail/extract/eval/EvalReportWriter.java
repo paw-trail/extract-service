@@ -155,11 +155,20 @@ final class EvalReportWriter {
                 }
             }
             if (shown == 0) {
-                md.append("| (같았던 값이 없음 — 둘 다 모든 칸을 비움) | | |\n");
+                md.append(bothEmpty(result)
+                        ? "| (정답과 모델 모두 모든 칸을 비움) | | |\n"
+                        : "| (같았던 값이 없음 — 이 표본의 칸은 위 「갈린 칸」 에 있음) | | |\n");
             }
             md.append('\n');
         }
         return md.toString();
+    }
+
+    // 같았던 값이 하나도 없을 때 그 까닭이 "둘 다 비움" 인지 "전부 갈림" 인지 가름
+    // 둘을 한 문구로 쓰면 전부 갈린 표본을 둘 다 비운 것으로 잘못 보여 줌
+    private static boolean bothEmpty(SampleResult result) {
+        return FieldNames.ALL.stream().allMatch(field -> EvalScorer.judge(
+                result.sample().fields().get(field), result.reading().fields().get(field)) == Verdict.BOTH_EMPTY);
     }
 
     // 채점이 끝난 표본 가운데 시드를 고정해 뽑음 — 다시 돌려도 같은 표본이 뽑힘
