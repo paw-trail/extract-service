@@ -52,43 +52,29 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    // ── 데이터 ────────────────────────────────────────────────
-    // DB 를 쓰지 않는 서비스(verdict, congestion, route)는
-    // 여기부터 QueryDSL 블록 끝까지를 통째로 제거할 것
+    // ── 데이터 · 캐시 · 이벤트 ───────────────────────────────
+    // 템플릿의 데이터 블록(DB · 좌표 · 쿼리 도구)과 캐시 · 이벤트 두 줄을 통째로 뺐음
     //
-    // * JPA 4줄만 지우면 안 됨
-    //   hibernate-spatial 과 QueryDSL 이 hibernate-core 와 jakarta.persistence-api 를
-    //   클래스패스에 그대로 남겨, 쓰지 않는 의존성이 이미지에 실리고
-    //   애노테이션 프로세서도 계속 돎
+    // * DB 가 없음
+    //   어디까지 처리했는지는 ingest 가 가진 원문의 상태가 맡고
+    //   뽑은 조건은 policy 로 넘기므로 이 서비스가 담아 둘 표가 없음
     //
-    // * 함께 지워야 하는 곳이 둘 더 있음
-    //   아래 테스트 블록의 data-jpa-test, flyway-test
-    //   앱 클래스의 @EntityScan, @EnableJpaRepositories 와 그 import
-    //   한쪽만 고치면 컴파일이 실패함
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-flyway'
-    implementation 'org.flywaydb:flyway-database-postgresql'
-    runtimeOnly   'org.postgresql:postgresql'
-
-    // 좌표 타입(PostGIS)을 쓰는 서비스만 필요함, search·route·place 가 해당됨
-    implementation 'org.hibernate.orm:hibernate-spatial'
-
-    // ── QueryDSL ──────────────────────────────────────────────
-    // groupId 는 io.github.openfeign.querydsl 이지만 패키지명은 com.querydsl 그대로임
-    // 따라서 소스에서는 com.querydsl.jpa.impl.JPAQueryFactory 를 그대로 import 하면 됨
-    implementation      "io.github.openfeign.querydsl:querydsl-jpa:${querydslVersion}"
-    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jpa"
-    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
-    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
-
-    // ── 캐시 · 이벤트 ─────────────────────────────────────────
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    // * 이벤트를 내지도 받지도 않음
+    //   조건이 바뀌었다는 알림은 policy 가 병합한 뒤 자기 이벤트로 냄
+    //
+    // * 캐시 서버를 쓰지 않음
+    //   같은 문장을 다시 읽지 않게 하는 재사용은 한 실행 안의 메모리로 충분함
+    //   의존성만 있어도 자동 설정이 켜져 상태 확인이 그 연결에 매달림 (place v0.1.0 에서 겪음)
+    //
+    // * 함께 지운 곳
+    //   아래 테스트 블록의 짝 · 테스트용 데이터베이스 블록 · 앱 클래스의 애노테이션 두 줄
+    //   gradle.properties 의 두 버전 값
 
     // ── Spring Cloud ──────────────────────────────────────────
+    // 회로 차단기 스타터를 뺐음
+    // 재시도는 ingest 처럼 손으로 짠 반복으로 하고 회로 차단기는 쓰지 않음
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
-    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 
     // ── 관측 ──────────────────────────────────────────────────
     implementation 'org.springframework.boot:spring-boot-starter-zipkin'
@@ -102,42 +88,11 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     // ── 테스트 ────────────────────────────────────────────────
-    // DB 를 쓰지 않는 서비스는 data-jpa-test, flyway-test 도 함께 제거할 것
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
-
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-redis-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-zipkin-test'
-
-    // ── 테스트용 데이터베이스 ─────────────────────────────────
-    // contextLoads 가 뜨려면 DataSource 가 필요한데 주소는 설정 서버에서 내려옴
-    // 설정 서버가 떠 있는지에 따라 결과가 갈리면 안 되므로
-    // 테스트가 자기 PostgreSQL 컨테이너를 직접 띄웠다가 끝나면 지움
-    //
-    // * infra 레포의 db 프로파일과는 무관함
-    //   그쪽은 compose 가, 이쪽은 테스트 코드가 띄우며 서로 쓰지 않음
-    //
-    // * Docker 가 떠 있어야 함
-    //   평소 개발에 compose 컨테이너를 띄워 두므로 추가 조건은 아님
-    //
-    // * 아티팩트 이름에 testcontainers- 접두사가 붙는 것이 2.0 부터의 규칙임
-    //   1.x 는 org.testcontainers:postgresql 이었고 그 이름은 1.x 버전까지만 존재함
-    //   옛 이름으로 2.x 를 요구하면 버전을 못 찾아 FAILED 로 떨어짐
-    //
-    // * 버전을 직접 적는 이유
-    //   Boot 이 관리하는 것은 spring-boot-testcontainers 하나뿐이고
-    //   testcontainers-bom 에는 접두사가 붙은 이름들이 빠져 있어 가져와도 해결되지 않음
-    //   (testcontainers-java 토론 #11251)
-    //   따라서 코어 버전과 어긋나지 않도록 gradle.properties 의 값으로 맞춰 둠
-    //   확인은 ./gradlew dependencies --configuration testCompileClasspath 로 함
-    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-    testImplementation "org.testcontainers:testcontainers-postgresql:${testcontainersVersion}"
-    testImplementation "org.testcontainers:testcontainers-junit-jupiter:${testcontainersVersion}"
 
     testCompileOnly       'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
