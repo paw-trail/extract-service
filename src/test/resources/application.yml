@@ -35,3 +35,32 @@ eureka:
     # 테스트는 서비스 디스커버리에 참여하지 않음
     # 켜 두면 등록을 시도하다 실패해 로그가 뒤덮임
     enabled: false
+
+app:
+  extract:
+    # 조건을 읽는 언어 모델 (LlmProperties)
+    #
+    # 테스트는 모델을 부르지 않으므로 검증을 통과할 값만 둠
+    # 설정 서버를 꺼서 config 저장소 값이 안 내려오므로, 없으면 LlmProperties 의 검증에 걸려
+    # contextLoads 가 그 자리에서 깨짐
+    # 값은 config 저장소 extract-service.yml 과 같게 둠
+    llm:
+      provider: ollama
+      max-retries: 3
+      retry-backoff-ms: 1000
+      ollama:
+        base-url: http://localhost:11434
+        model: qwen3.8:27b
+        think: false
+        num-ctx: 16384
+        num-predict: 2048
+        temperature: 0
+        seed: 42
+        timeout-seconds: 120
+      openai:
+        base-url: https://api.openai.com/v1
+        model: gpt-5.6-luna
+        reasoning-effort: low
+        # provider 가 ollama 라 검사하지 않음
+        api-key: ""
+        timeout-seconds: 60
