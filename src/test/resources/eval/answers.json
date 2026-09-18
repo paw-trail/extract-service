@@ -1,0 +1,4021 @@
+{
+ "about": "LLM 추출 정확도 평가의 정답입니다. 표본마다 조건 20칸의 정답과, 값이 있는 칸마다 그 값을 말한 조각 번호를 적습니다. 정답은 모델이 원문 조각에서 읽어야 할 값이며 규칙이 읽는 칸과 합친 값이 아닙니다. 목록 칸의 항목은 문자열이거나, 받아 줄 표기들의 목록입니다.",
+ "seed": 20260918,
+ "rules": [
+  "2026.9.13 원문 덤프에서 LLM 으로 가는 문서만 고릅니다.",
+  "프롬프트를 다듬을 때 쓴 표본 28건이 든 입력은 통째로 뺍니다.",
+  "같은 입력은 한 번만 넣고, 그 입력을 가진 문서 가운데 id 가 가장 앞선 것을 표본으로 둡니다.",
+  "소스별로 공사 40 · 고캠핑 30 · 문화정보원 30 을 고릅니다. 어려운 유형을 유형마다 정한 수만큼 먼저 넣고, 나머지는 시드를 고정한 무작위로 채웁니다.",
+  "공사 — 필요사항 입마개 · 맹견 문맥 4 · 좁히는 말 없음 4 · 실내 불가 문장 3 · 확정 아닌 문장 3",
+  "고캠핑 — 출입 불가능인데 본문은 가능 5 · 출입 가능인데 본문은 불가 3 · 이름에만 반려 낱말 3",
+  "문화정보원 — 야외만 4 · 조건이 붙은 크기 4 · 범위나 조건이 붙은 요금 4"
+ ],
+ "adjudication": [
+  "2026.9.18 로컬 첫 평가(qwen3.8:27b · 프롬프트 v1)에서 정답 초안과 갈린 칸 43개를 판정해 고쳤습니다 — 초안이 맞음 35 · 모델이 맞음 7 · 둘 다 틀림 1. 이어 OpenAI(gpt-5.6-luna) 평가에서 드러난 세 자리를 더 판정했습니다 — 필요사항의 '입마개 착용 · 매너벨트 착용' 표기를 받고(표본 2 · 5 · 6 · 8), 표본 12 의 실외 동반을 더했으며, 표본 86 의 크기는 그대로 둡니다.",
+  "정답과 모델이 같았던 칸도 무작위 10문서(시드 20260918)를 사람이 확인했습니다. 초안과 모델이 같이 틀린 칸은 갈린 목록에 나오지 않기 때문입니다.",
+  "판정 기준 — 실내 전체를 막을 때만 실내 false · 안고 있어야 들어가는 실내는 비움 · '만' 이 없는 곳은 허용 구역으로 적지 않음 · 요금 단위가 원문에 적혀 있으면 그 단위",
+  "새 표본에서 모델 · 추론 강도 일곱 설정이 모두 같게 읽은 것을 보고 표본 19 의 \"이동장(켄넬)에 들어가는 전 견종 동반 가능\" 을 크기 ALL 로 고쳤습니다. 들어가야 한다는 조건은 이동장 칸이 담습니다."
+ ],
+ "samples": [
+  {
+   "no": 1,
+   "id": "01a082a8-db92-7d3a-b71a-f23ccc8bbce8",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 맹견 문맥",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     2,
+     4
+    ],
+    "leashRequired": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 2,
+   "id": "01a082a8-d9fc-76ad-b6d0-661f8b57439c",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 맹견 문맥",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_BANNED",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     [
+      "입마개",
+      "입마개 착용"
+     ],
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     1
+    ],
+    "leashRequired": [
+     3
+    ],
+    "requiredItems": [
+     2,
+     5
+    ]
+   }
+  },
+  {
+   "no": 3,
+   "id": "01a082a9-2b4a-74ea-ab81-9d156e34345d",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 맹견 문맥",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     2,
+     6
+    ],
+    "leashRequired": [
+     3
+    ],
+    "requiredItems": [
+     7
+    ]
+   }
+  },
+  {
+   "no": 4,
+   "id": "01a082a8-ce28-792a-ae62-b8ea5bb41d17",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 맹견 문맥",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     2,
+     4
+    ],
+    "leashRequired": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 5,
+   "id": "01a082a8-f390-749e-9293-8554ae4ea4f5",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 좁히는 말 없음",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "NONE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     [
+      "입마개",
+      "입마개 착용"
+     ],
+     [
+      "매너벨트",
+      "매너벨트 착용"
+     ]
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     1
+    ],
+    "leashRequired": [
+     3,
+     5
+    ],
+    "requiredItems": [
+     2,
+     4
+    ]
+   }
+  },
+  {
+   "no": 6,
+   "id": "01a082a9-1f83-7a49-b956-9517ccbb9731",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 좁히는 말 없음",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "NONE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     [
+      "입마개",
+      "입마개 착용"
+     ],
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     1
+    ],
+    "leashRequired": [
+     3
+    ],
+    "requiredItems": [
+     2,
+     4
+    ]
+   }
+  },
+  {
+   "no": 7,
+   "id": "01a082a9-2358-7e78-81b0-04fba64c5590",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 좁히는 말 없음",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "NONE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": true,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1,
+     7
+    ],
+    "breedRule": [
+     1,
+     7
+    ],
+    "leashRequired": [
+     3,
+     5
+    ],
+    "vaccineProof": [
+     1,
+     7
+    ]
+   }
+  },
+  {
+   "no": 8,
+   "id": "01a082a9-1065-73f2-9190-6adca0d2e5bc",
+   "source": "PET_TOUR",
+   "type": "필요사항 입마개 · 좁히는 말 없음",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "NONE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     [
+      "입마개",
+      "입마개 착용"
+     ],
+     "배변봉투"
+    ],
+    "vaccineProof": true,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     1
+    ],
+    "leashRequired": [
+     3
+    ],
+    "requiredItems": [
+     2,
+     5
+    ],
+    "vaccineProof": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 9,
+   "id": "01a082a8-c8ae-79cd-915c-34671e1227f2",
+   "source": "PET_TOUR",
+   "type": "실내 불가 문장",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "실내"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     3
+    ],
+    "indoorAllowed": [
+     3
+    ],
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 10,
+   "id": "01a082a9-2b22-77c3-941b-908e93dc7420",
+   "source": "PET_TOUR",
+   "type": "실내 불가 문장",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "실내 미술관",
+      "미술관"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     3
+    ],
+    "sizeRule": [
+     1,
+     6
+    ],
+    "breedRule": [
+     1,
+     4,
+     6
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 11,
+   "id": "01a082a8-d895-7657-b7db-266fa3e98211",
+   "source": "PET_TOUR",
+   "type": "실내 불가 문장",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "수목원 내 카페 실내 좌석",
+      "카페 실내 좌석",
+      "카페"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     3
+    ],
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 12,
+   "id": "01a082a9-32db-7fa7-85b9-30459b8ec1a3",
+   "source": "PET_TOUR",
+   "type": "확정 아닌 문장 (될 수 있음)",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "outdoorAllowed": [
+     2
+    ]
+   }
+  },
+  {
+   "no": 13,
+   "id": "01a082a9-3bc1-774d-8fc9-e4faa8a87aca",
+   "source": "PET_TOUR",
+   "type": "확정 아닌 문장 (될 수 있음)",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_MEDIUM",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "편의 시설",
+      "편의시설"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "sizeRule": [
+     1
+    ],
+    "leashRequired": [
+     1
+    ],
+    "excludedZones": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 14,
+   "id": "01a082a9-2caa-7e26-b2b5-921b2172fd40",
+   "source": "PET_TOUR",
+   "type": "확정 아닌 문장 (될 수 있음)",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": null,
+    "maxWeightKg": 10,
+    "weightInclusive": true,
+    "maxCount": null,
+    "sizeRule": "SMALL_MEDIUM",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": [
+     [
+      "객실",
+      "객실 내"
+     ]
+    ],
+    "allowedZonesOnly": [
+     [
+      "오토캠핑장"
+     ],
+     [
+      "세미캠핑장"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     2
+    ],
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ],
+    "sizeRule": [
+     1
+    ],
+    "excludedZones": [
+     2
+    ],
+    "allowedZonesOnly": [
+     2
+    ],
+    "indoorAllowed": [
+     2
+    ]
+   }
+  },
+  {
+   "no": 15,
+   "id": "01a082a8-d8a4-7a57-9a9e-53ab298089d3",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_MEDIUM",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1,
+     5
+    ],
+    "breedRule": [
+     3
+    ],
+    "leashRequired": [
+     2
+    ],
+    "requiredItems": [
+     4
+    ]
+   }
+  },
+  {
+   "no": 16,
+   "id": "01a082a9-37e7-74e3-823c-e1696c7abefa",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "카페 시설",
+      "카페"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     3
+    ],
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 17,
+   "id": "01a082a8-de51-7b25-b9e3-5d46b57afd7b",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": 30,
+    "weightInclusive": true,
+    "maxCount": 1,
+    "sizeRule": null,
+    "breedRule": "DANGEROUS_BANNED",
+    "carrierRequired": true,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "호텔 전 구역 (D동 1,2층 제외)",
+      "호텔 전 구역(D동 1,2층 제외)",
+      "호텔 전 구역",
+      "호텔"
+     ]
+    ],
+    "allowedZonesOnly": [
+     [
+      "빌라 전 지역",
+      "빌라"
+     ],
+     [
+      "D동 반려견 동반 투숙객실",
+      "D동 1,2층",
+      "D동"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     4,
+     5
+    ],
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ],
+    "maxCount": [
+     1
+    ],
+    "breedRule": [
+     1
+    ],
+    "carrierRequired": [
+     2,
+     3,
+     6
+    ],
+    "leashRequired": [
+     7
+    ],
+    "allowedZonesOnly": [
+     4,
+     5
+    ],
+    "excludedZones": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 18,
+   "id": "01a082a8-db94-7e7d-9aa8-cdedea0a111f",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": 9,
+    "weightInclusive": true,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": true,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "알파카 울타리 내",
+      "알파카 울타리"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     5
+    ],
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ],
+    "carrierRequired": [
+     3,
+     4,
+     6
+    ],
+    "leashRequired": [
+     2,
+     6
+    ],
+    "excludedZones": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 19,
+   "id": "01a082a9-3d21-70a7-93fa-4ebbb6393e90",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "NONE",
+    "carrierRequired": true,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "breedRule": [
+     1,
+     4
+    ],
+    "carrierRequired": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "sizeRule": [
+     1,
+     4
+    ]
+   }
+  },
+  {
+   "no": 20,
+   "id": "01a082a9-20c3-7193-8238-23c6757e0609",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     3
+    ],
+    "leashRequired": [
+     2
+    ],
+    "requiredItems": [
+     4
+    ]
+   }
+  },
+  {
+   "no": 21,
+   "id": "01a082a9-24ae-7d01-8476-a6ac1f30c53b",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": 10,
+    "weightInclusive": false,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": true,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ],
+    "carrierRequired": [
+     3
+    ],
+    "leashRequired": [
+     2
+    ]
+   }
+  },
+  {
+   "no": 22,
+   "id": "01a082a8-fbc5-79da-89bd-ca70e744f9d7",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1,
+     6
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 23,
+   "id": "01a082a9-02bb-7af1-9736-d3ee00522310",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 24,
+   "id": "01a082a9-2b2d-7b8a-bfe7-c5fd76f67694",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "박물관 내부 시설",
+      "박물관 내부",
+      "박물관"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     3
+    ],
+    "sizeRule": [
+     1,
+     6
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 25,
+   "id": "01a082a8-e7e9-71b6-8766-ce73e931fa84",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 26,
+   "id": "01a082a9-0b54-7c8b-ad02-3cc4ac2b5dee",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     [
+      "비닐봉지"
+     ]
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "leashRequired": [
+     1
+    ],
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 27,
+   "id": "01a082a9-0f0d-75df-821a-6ff216fb688d",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2,
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 28,
+   "id": "01a082a8-f392-7ece-9ade-591d190011fd",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     3
+    ],
+    "leashRequired": [
+     2
+    ],
+    "requiredItems": [
+     4
+    ]
+   }
+  },
+  {
+   "no": 29,
+   "id": "01a082a8-cdee-7741-b2a0-49714e249a83",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 30,
+   "id": "01a082a8-cb63-72d3-894a-4f4851ed29e6",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 31,
+   "id": "01a082a8-dba7-70a7-8a6a-13075d82c9ca",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": 15,
+    "weightInclusive": true,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "실내카페",
+      "실내 카페"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     4
+    ],
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ],
+    "breedRule": [
+     5
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     4
+    ],
+    "requiredItems": [
+     6
+    ]
+   }
+  },
+  {
+   "no": 32,
+   "id": "01a082a9-09fe-7fd1-8e36-ab487453d3ea",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 33,
+   "id": "01a082a8-f8a0-7f43-beea-69675e9bb248",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": true,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "guideDogOnly": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 34,
+   "id": "01a082a9-1f89-76b2-8b19-f5ee5b493b4f",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_BANNED",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     1
+    ],
+    "leashRequired": [
+     2,
+     4
+    ]
+   }
+  },
+  {
+   "no": 35,
+   "id": "01a082a8-fea3-7d1a-ab95-acf687afe63e",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "내부 시설",
+      "내부"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     3
+    ],
+    "indoorAllowed": [
+     3
+    ],
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     3
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 36,
+   "id": "01a082a8-e095-7676-92c3-50d0ea053baa",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "leashRequired": [
+     3,
+     5
+    ]
+   }
+  },
+  {
+   "no": 37,
+   "id": "01a082a8-f0d7-7064-acb8-b7396741c5b8",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_BANNED",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1,
+     4
+    ],
+    "breedRule": [
+     1,
+     4
+    ],
+    "leashRequired": [
+     2
+    ]
+   }
+  },
+  {
+   "no": 38,
+   "id": "01a082a9-288e-7b0d-b289-610389b8e26d",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1,
+     6
+    ],
+    "breedRule": [
+     4
+    ],
+    "leashRequired": [
+     2
+    ],
+    "requiredItems": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 39,
+   "id": "01a082a8-ccb0-7965-98cc-a5c73694b0d8",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1,
+     5
+    ],
+    "breedRule": [
+     3
+    ],
+    "leashRequired": [
+     2
+    ],
+    "requiredItems": [
+     4
+    ]
+   }
+  },
+  {
+   "no": 40,
+   "id": "01a082a9-38fc-7921-8e6f-5bc400a18671",
+   "source": "PET_TOUR",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "ALL",
+    "breedRule": "DANGEROUS_MUZZLE",
+    "carrierRequired": true,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "선실 객실",
+      "선실",
+      "객실"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     4
+    ],
+    "sizeRule": [
+     1
+    ],
+    "breedRule": [
+     7
+    ],
+    "carrierRequired": [
+     3,
+     5
+    ],
+    "leashRequired": [
+     2
+    ],
+    "excludedZones": [
+     4
+    ],
+    "requiredItems": [
+     8
+    ]
+   }
+  },
+  {
+   "no": 41,
+   "id": "01a0850d-be80-7aed-998b-3828a16eaefa",
+   "source": "GOCAMPING",
+   "type": "출입 불가능인데 본문은 가능",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 42,
+   "id": "01a0850d-ba37-7656-93f9-a10e8acfa9a8",
+   "source": "GOCAMPING",
+   "type": "출입 불가능인데 본문은 가능",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 43,
+   "id": "01a0850d-bb34-7f52-b526-aaaee46f7dfb",
+   "source": "GOCAMPING",
+   "type": "출입 불가능인데 본문은 가능",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 44,
+   "id": "01a0850d-bf42-70e2-bced-92c55781a106",
+   "source": "GOCAMPING",
+   "type": "출입 불가능인데 본문은 가능",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 45,
+   "id": "01a0850d-bc52-7f69-9811-ff2b554c2985",
+   "source": "GOCAMPING",
+   "type": "출입 불가능인데 본문은 가능",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 46,
+   "id": "01a0850d-acd1-79e5-a3bc-6266f77c89d6",
+   "source": "GOCAMPING",
+   "type": "출입 가능인데 본문은 불가",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": [
+     [
+      "7월 3째 주말 - 8월 2째 주말",
+      "7월 3째 주말~8월 2째 주말",
+      "7월 3째 주말-8월 2째 주말"
+     ]
+    ],
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "excludedDays": [
+     4
+    ]
+   }
+  },
+  {
+   "no": 47,
+   "id": "01a0850d-be2b-7a05-856e-5ea44f521850",
+   "source": "GOCAMPING",
+   "type": "출입 가능인데 본문은 불가",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": 5,
+    "weightInclusive": false,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": [
+     [
+      "펜션"
+     ]
+    ],
+    "allowedZonesOnly": [
+     [
+      "캠핑장"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": 10000,
+    "extraFeeUnit": "PER_NIGHT",
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ],
+    "excludedZones": [
+     1
+    ],
+    "allowedZonesOnly": [
+     1
+    ],
+    "extraFeeAmount": [
+     1
+    ],
+    "extraFeeUnit": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 48,
+   "id": "01a0850d-b069-7779-bf13-462dd2cba711",
+   "source": "GOCAMPING",
+   "type": "출입 가능인데 본문은 불가",
+   "fields": {
+    "scope": "NONE",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": false,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "indoorAllowed": [
+     1
+    ],
+    "outdoorAllowed": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 49,
+   "id": "01a0850d-b551-788d-a9ce-1917d115ca01",
+   "source": "GOCAMPING",
+   "type": "이름에만 반려 낱말",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 50,
+   "id": "01a0850d-b883-7d31-8745-58b0775f347c",
+   "source": "GOCAMPING",
+   "type": "이름에만 반려 낱말",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 51,
+   "id": "01a0850d-aed4-7f52-b635-5a15a402cc3e",
+   "source": "GOCAMPING",
+   "type": "이름에만 반려 낱말",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 52,
+   "id": "01a0850d-af10-777b-a566-94f2cfa67ec5",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 53,
+   "id": "01a0850d-beea-7c3d-8d66-3f883b47378a",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 54,
+   "id": "01a0850d-bcd7-7c73-907e-bd84eafb8c1b",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": 10,
+    "weightInclusive": true,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 55,
+   "id": "01a0850d-c068-7127-9f72-e9f18e147d1b",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 56,
+   "id": "01a0850d-bebe-77ef-b923-65aaeaeb53ae",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": true
+   },
+   "evidence": {
+    "scope": [
+     4
+    ],
+    "sizeRule": [
+     3
+    ],
+    "advanceInquiry": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 57,
+   "id": "01a0850d-b345-781b-b95a-416abbe25a60",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     6
+    ]
+   }
+  },
+  {
+   "no": 58,
+   "id": "01a0850d-b4aa-7d42-bc13-61ba5f2e03aa",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     8
+    ],
+    "leashRequired": [
+     8
+    ],
+    "requiredItems": [
+     8
+    ]
+   }
+  },
+  {
+   "no": 59,
+   "id": "01a0850d-b633-759e-a800-3d60bf4b57cd",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 60,
+   "id": "01a0850d-bec0-70d0-8613-1f044fc08665",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "일반캠핑 일부 사이트",
+      "일반캠핑 사이트",
+      "일반캠핑"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     5
+    ],
+    "sizeRule": [
+     5
+    ],
+    "allowedZonesOnly": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 61,
+   "id": "01a0850d-be8f-7574-a32b-c5de5d329c45",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 62,
+   "id": "01a0850d-b39b-7d72-9c26-c49c1e5f2f6c",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 63,
+   "id": "01a0850d-be79-7c14-8e25-2158ba6811ae",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     5
+    ]
+   }
+  },
+  {
+   "no": 64,
+   "id": "01a0850d-afcb-767f-a666-b7f880643772",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": "NONE",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": false,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     9
+    ],
+    "indoorAllowed": [
+     9
+    ],
+    "outdoorAllowed": [
+     9
+    ]
+   }
+  },
+  {
+   "no": 65,
+   "id": "01a0850d-ad30-7514-9a75-f65bc897ba6e",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "C D 사이트",
+      "C, D 사이트",
+      "CD 사이트",
+      "C·D 사이트"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     3
+    ],
+    "allowedZonesOnly": [
+     3
+    ]
+   }
+  },
+  {
+   "no": 66,
+   "id": "01a0850d-af3f-73f8-9c1e-f39b0d4c2655",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     9
+    ]
+   }
+  },
+  {
+   "no": 67,
+   "id": "01a0850d-be9e-7a05-8362-0146a7832f3c",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 68,
+   "id": "01a0850d-bce9-7a0b-a023-514e4533e46a",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "leashRequired": [
+     8
+    ],
+    "requiredItems": [
+     8
+    ]
+   }
+  },
+  {
+   "no": 69,
+   "id": "01a0850d-b010-7c41-b733-26f5cb9adcad",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": "NONE",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": false,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     8
+    ],
+    "indoorAllowed": [
+     8
+    ],
+    "outdoorAllowed": [
+     8
+    ]
+   }
+  },
+  {
+   "no": 70,
+   "id": "01a0850d-bc73-7a92-b9e7-d7ac4fb5d473",
+   "source": "GOCAMPING",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 71,
+   "id": "01a08559-e782-7057-bce1-f545c6f67596",
+   "source": "CULTURE_CSV",
+   "type": "야외만",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "야외"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "indoorAllowed": [
+     1
+    ],
+    "outdoorAllowed": [
+     1
+    ],
+    "leashRequired": [
+     1
+    ],
+    "allowedZonesOnly": [
+     1
+    ],
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 72,
+   "id": "01a08559-df9c-74d0-8944-039c544f5c0a",
+   "source": "CULTURE_CSV",
+   "type": "야외만",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "실외"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "indoorAllowed": [
+     1
+    ],
+    "outdoorAllowed": [
+     1
+    ],
+    "allowedZonesOnly": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 73,
+   "id": "01a0855a-3fc2-714a-8b5d-5c3cb10c90b0",
+   "source": "CULTURE_CSV",
+   "type": "야외만",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "실외"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "indoorAllowed": [
+     1
+    ],
+    "outdoorAllowed": [
+     1
+    ],
+    "allowedZonesOnly": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 74,
+   "id": "01a0855a-053c-73f9-8c37-bff8e93a1f0f",
+   "source": "CULTURE_CSV",
+   "type": "야외만",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "야외"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "indoorAllowed": [
+     1
+    ],
+    "outdoorAllowed": [
+     1
+    ],
+    "allowedZonesOnly": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 75,
+   "id": "01a0855a-0df1-72e4-b515-9542c20bd5c4",
+   "source": "CULTURE_CSV",
+   "type": "조건이 붙은 크기",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 76,
+   "id": "01a0855a-0c45-7f56-9fa5-a67896bc87fb",
+   "source": "CULTURE_CSV",
+   "type": "조건이 붙은 크기",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": "SMALL_ONLY",
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "sizeRule": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 77,
+   "id": "01a0855a-1a5e-7451-907c-931c5fea92b0",
+   "source": "CULTURE_CSV",
+   "type": "조건이 붙은 크기",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": 10,
+    "weightInclusive": true,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "maxWeightKg": [
+     1
+    ],
+    "weightInclusive": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 78,
+   "id": "01a0855a-393a-770f-ac59-61266c22f2d9",
+   "source": "CULTURE_CSV",
+   "type": "조건이 붙은 크기",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 79,
+   "id": "01a08559-fef8-7a4d-ba71-74c84983f88a",
+   "source": "CULTURE_CSV",
+   "type": "범위 · 조건이 붙은 요금",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 80,
+   "id": "01a0855a-0425-73d6-8f6d-2a5d8cce875a",
+   "source": "CULTURE_CSV",
+   "type": "범위 · 조건이 붙은 요금",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 81,
+   "id": "01a0855a-3476-7771-99fa-1504ccf336b5",
+   "source": "CULTURE_CSV",
+   "type": "범위 · 조건이 붙은 요금",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 82,
+   "id": "01a0855a-0427-7d75-bce5-0d4d945a35a0",
+   "source": "CULTURE_CSV",
+   "type": "범위 · 조건이 붙은 요금",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 83,
+   "id": "01a08559-e47c-7bc9-be30-f2405f456c84",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": false,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "실외"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "indoorAllowed": [
+     1
+    ],
+    "outdoorAllowed": [
+     1
+    ],
+    "leashRequired": [
+     1
+    ],
+    "allowedZonesOnly": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 84,
+   "id": "01a08559-e459-70a4-af8c-f3e7df817933",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": 3,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "maxCount": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 85,
+   "id": "01a0855a-3caa-7936-8f00-d6b93556c2d4",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "패드",
+     "사료"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 86,
+   "id": "01a0855a-10ef-7185-bd28-e0507d60bb10",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": "DANGEROUS_BANNED",
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "breedRule": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 87,
+   "id": "01a0855a-3930-75f7-b73a-9f97dc79c850",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "leashRequired": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 88,
+   "id": "01a0855a-0ce1-7c35-ae4b-49dc1cd4ea2d",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 89,
+   "id": "01a0855a-30c4-793e-8b6d-431d65e7f8bf",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": [
+     [
+      "반려견 수영장",
+      "수영장"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "애견용품"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "excludedZones": [
+     1
+    ],
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 90,
+   "id": "01a0855a-20a9-70d0-a134-53c561766b1a",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {}
+  },
+  {
+   "no": 91,
+   "id": "01a0855a-1b75-7350-846b-fced8d706f4b",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "outdoorAllowed": [
+     1
+    ],
+    "scope": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 92,
+   "id": "01a0855a-0c3b-7e32-a2a6-f1109d4c4f5c",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "매너벨트"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "leashRequired": [
+     1
+    ],
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 93,
+   "id": "01a0855a-1077-70c9-aa52-2f786a0b70aa",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": 3,
+    "sizeRule": null,
+    "breedRule": "DANGEROUS_BANNED",
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "애견용품"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "maxCount": [
+     1
+    ],
+    "breedRule": [
+     1
+    ],
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 94,
+   "id": "01a08559-e667-708e-8f2e-fe44f4ab6516",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": 1,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "maxCount": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 95,
+   "id": "01a0855a-1a62-7f72-948f-541c13ef3b3d",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": true,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": [
+     [
+      "1층"
+     ],
+     [
+      "실외"
+     ]
+    ],
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "outdoorAllowed": [
+     1
+    ],
+    "allowedZonesOnly": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 96,
+   "id": "01a08559-fd99-750d-85ef-080ce89d66b4",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "leashRequired": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 97,
+   "id": "01a0855a-1273-77a6-8b02-7600c4e7df42",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "입마개"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "leashRequired": [
+     1
+    ],
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 98,
+   "id": "01a08559-fc66-70b1-8c33-7224a56af7eb",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": true,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "carrierRequired": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 99,
+   "id": "01a0855a-0a0a-7095-89c7-8597541afeaf",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": "PARTIAL",
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": true,
+    "excludedZones": [
+     [
+      "마애불"
+     ]
+    ],
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": [
+     "배변봉투",
+     "입마개"
+    ],
+    "vaccineProof": null,
+    "advanceInquiry": null
+   },
+   "evidence": {
+    "scope": [
+     1
+    ],
+    "leashRequired": [
+     1
+    ],
+    "excludedZones": [
+     1
+    ],
+    "requiredItems": [
+     1
+    ]
+   }
+  },
+  {
+   "no": 100,
+   "id": "01a0855a-2d57-7963-b63e-9cc97d02d9fb",
+   "source": "CULTURE_CSV",
+   "type": "무작위",
+   "fields": {
+    "scope": null,
+    "guideDogOnly": null,
+    "petOnly": null,
+    "indoorAllowed": null,
+    "outdoorAllowed": null,
+    "maxWeightKg": null,
+    "weightInclusive": null,
+    "maxCount": null,
+    "sizeRule": null,
+    "breedRule": null,
+    "carrierRequired": null,
+    "leashRequired": null,
+    "excludedZones": null,
+    "allowedZonesOnly": null,
+    "excludedDays": null,
+    "extraFeeAmount": null,
+    "extraFeeUnit": null,
+    "requiredItems": null,
+    "vaccineProof": null,
+    "advanceInquiry": true
+   },
+   "evidence": {
+    "advanceInquiry": [
+     1
+    ]
+   }
+  }
+ ]
+}

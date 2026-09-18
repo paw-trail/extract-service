@@ -44,6 +44,7 @@ app:
     # 설정 서버를 꺼서 config 저장소 값이 안 내려오므로, 없으면 LlmProperties 의 검증에 걸려
     # contextLoads 가 그 자리에서 깨짐
     # 값은 config 저장소 extract-service.yml 과 같게 둠
+    # 다만 provider 는 키 없이 뜨도록 ollama 로 둠 — config 는 openai 라 키가 없으면 기동이 실패함
     llm:
       provider: ollama
       max-retries: 3
@@ -60,7 +61,9 @@ app:
       openai:
         base-url: https://api.openai.com/v1
         model: gpt-5.6-luna
-        reasoning-effort: low
-        # provider 가 ollama 라 검사하지 않음
-        api-key: ""
+        reasoning-effort: medium
+        # provider 가 ollama 면 검사하지 않음
+        # 정확도 평가를 OpenAI 로 돌릴 때만 환경변수에서 받아 씀 (./gradlew llmEval "-Dapp.extract.llm.provider=openai")
+        # 키를 명령줄이나 이 파일에 적지 않기 위해서임
+        api-key: ${OPENAI_API_KEY:}
         timeout-seconds: 60
