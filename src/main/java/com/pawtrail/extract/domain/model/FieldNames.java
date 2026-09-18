@@ -1,5 +1,7 @@
 package com.pawtrail.extract.domain.model;
 
+import java.util.List;
+
 /**
  * 조건 20칸의 이름입니다.
  *
@@ -32,6 +34,18 @@ public final class FieldNames {
     public static final String REQUIRED_ITEMS = "requiredItems";
     public static final String VACCINE_PROOF = "vaccineProof";
     public static final String ADVANCE_INQUIRY = "advanceInquiry";
+
+    /**
+     * 스무 칸을 정한 순서대로 담았습니다.
+     *
+     * 모델에 보내는 응답 스키마와 근거 검사가 이 순서로 칸을 돕니다.
+     * 순서가 실행마다 같아야 같은 입력에 같은 요청이 나갑니다.
+     */
+    public static final List<String> ALL = List.of(
+            SCOPE, GUIDE_DOG_ONLY, PET_ONLY, INDOOR_ALLOWED, OUTDOOR_ALLOWED,
+            MAX_WEIGHT_KG, WEIGHT_INCLUSIVE, MAX_COUNT, SIZE_RULE, BREED_RULE,
+            CARRIER_REQUIRED, LEASH_REQUIRED, EXCLUDED_ZONES, ALLOWED_ZONES_ONLY, EXCLUDED_DAYS,
+            EXTRA_FEE_AMOUNT, EXTRA_FEE_UNIT, REQUIRED_ITEMS, VACCINE_PROOF, ADVANCE_INQUIRY);
 
     private FieldNames() {
     }

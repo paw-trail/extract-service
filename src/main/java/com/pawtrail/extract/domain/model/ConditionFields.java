@@ -1,5 +1,6 @@
 package com.pawtrail.extract.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pawtrail.extract.domain.enums.BreedRule;
 import com.pawtrail.extract.domain.enums.ExtraFeeUnit;
 import com.pawtrail.extract.domain.enums.Scope;
@@ -9,6 +10,7 @@ import lombok.Builder;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -69,13 +71,79 @@ public record ConditionFields(
      * 20칸이 전부 비었는지 봅니다.
      *
      * 규칙 추출이 이것과 넘길 원문의 유무를 함께 보고 빈 문서를 가립니다.
+     * JSON 으로 실려 나갈 칸이 아니라 계산용이라 직렬화에서 뺍니다.
      */
+    @JsonIgnore
     public boolean isEmpty() {
         return Stream.of(scope, guideDogOnly, petOnly, indoorAllowed, outdoorAllowed,
                         maxWeightKg, weightInclusive, maxCount, sizeRule, breedRule,
                         carrierRequired, leashRequired, excludedZones, allowedZonesOnly, excludedDays,
                         extraFeeAmount, extraFeeUnit, requiredItems, vaccineProof, advanceInquiry)
                 .allMatch(Objects::isNull);
+    }
+
+    /**
+     * 칸 이름으로 값을 꺼냅니다.
+     *
+     * 근거 검사가 모델이 댄 칸 이름으로 값이 있는지 볼 때 씁니다.
+     *
+     * @throws IllegalArgumentException 조건 스무 칸의 이름이 아닐 때
+     */
+    public Object get(String fieldName) {
+        return switch (fieldName) {
+            case FieldNames.SCOPE -> scope;
+            case FieldNames.GUIDE_DOG_ONLY -> guideDogOnly;
+            case FieldNames.PET_ONLY -> petOnly;
+            case FieldNames.INDOOR_ALLOWED -> indoorAllowed;
+            case FieldNames.OUTDOOR_ALLOWED -> outdoorAllowed;
+            case FieldNames.MAX_WEIGHT_KG -> maxWeightKg;
+            case FieldNames.WEIGHT_INCLUSIVE -> weightInclusive;
+            case FieldNames.MAX_COUNT -> maxCount;
+            case FieldNames.SIZE_RULE -> sizeRule;
+            case FieldNames.BREED_RULE -> breedRule;
+            case FieldNames.CARRIER_REQUIRED -> carrierRequired;
+            case FieldNames.LEASH_REQUIRED -> leashRequired;
+            case FieldNames.EXCLUDED_ZONES -> excludedZones;
+            case FieldNames.ALLOWED_ZONES_ONLY -> allowedZonesOnly;
+            case FieldNames.EXCLUDED_DAYS -> excludedDays;
+            case FieldNames.EXTRA_FEE_AMOUNT -> extraFeeAmount;
+            case FieldNames.EXTRA_FEE_UNIT -> extraFeeUnit;
+            case FieldNames.REQUIRED_ITEMS -> requiredItems;
+            case FieldNames.VACCINE_PROOF -> vaccineProof;
+            case FieldNames.ADVANCE_INQUIRY -> advanceInquiry;
+            default -> throw new IllegalArgumentException("조건 칸이 아닙니다: " + fieldName);
+        };
+    }
+
+    /**
+     * 주어진 칸들을 비운 사본을 돌려줍니다.
+     *
+     * 근거 검사가 근거 없는 값을 버릴 때 씁니다.
+     * 칸마다 빌더의 같은 이름 메서드로 옮기므로 인자 순서가 엇갈릴 자리가 없습니다.
+     */
+    public ConditionFields without(Set<String> names) {
+        return builder()
+                .scope(names.contains(FieldNames.SCOPE) ? null : scope)
+                .guideDogOnly(names.contains(FieldNames.GUIDE_DOG_ONLY) ? null : guideDogOnly)
+                .petOnly(names.contains(FieldNames.PET_ONLY) ? null : petOnly)
+                .indoorAllowed(names.contains(FieldNames.INDOOR_ALLOWED) ? null : indoorAllowed)
+                .outdoorAllowed(names.contains(FieldNames.OUTDOOR_ALLOWED) ? null : outdoorAllowed)
+                .maxWeightKg(names.contains(FieldNames.MAX_WEIGHT_KG) ? null : maxWeightKg)
+                .weightInclusive(names.contains(FieldNames.WEIGHT_INCLUSIVE) ? null : weightInclusive)
+                .maxCount(names.contains(FieldNames.MAX_COUNT) ? null : maxCount)
+                .sizeRule(names.contains(FieldNames.SIZE_RULE) ? null : sizeRule)
+                .breedRule(names.contains(FieldNames.BREED_RULE) ? null : breedRule)
+                .carrierRequired(names.contains(FieldNames.CARRIER_REQUIRED) ? null : carrierRequired)
+                .leashRequired(names.contains(FieldNames.LEASH_REQUIRED) ? null : leashRequired)
+                .excludedZones(names.contains(FieldNames.EXCLUDED_ZONES) ? null : excludedZones)
+                .allowedZonesOnly(names.contains(FieldNames.ALLOWED_ZONES_ONLY) ? null : allowedZonesOnly)
+                .excludedDays(names.contains(FieldNames.EXCLUDED_DAYS) ? null : excludedDays)
+                .extraFeeAmount(names.contains(FieldNames.EXTRA_FEE_AMOUNT) ? null : extraFeeAmount)
+                .extraFeeUnit(names.contains(FieldNames.EXTRA_FEE_UNIT) ? null : extraFeeUnit)
+                .requiredItems(names.contains(FieldNames.REQUIRED_ITEMS) ? null : requiredItems)
+                .vaccineProof(names.contains(FieldNames.VACCINE_PROOF) ? null : vaccineProof)
+                .advanceInquiry(names.contains(FieldNames.ADVANCE_INQUIRY) ? null : advanceInquiry)
+                .build();
     }
 
     private static List<String> copyOrNull(List<String> values) {
