@@ -13,16 +13,18 @@ import org.springframework.validation.annotation.Validated;
  * 조건을 읽는 언어 모델 설정입니다 (app.extract.llm).
  *
  * provider 가 ollama 면 로컬 Ollama 를, openai 면 OpenAI 를 씁니다. 뜨는 구현은 하나입니다.
- * 로컬 전량 적재는 호출이 천 번 넘게 나가 5090 의 Ollama 로 돌리고,
- * 배포의 증분은 그 기기에 닿을 수 없어 OpenAI 로 바꿉니다. 코드는 같고 이 값만 다릅니다.
+ * 전량 적재와 배포의 증분 모두 OpenAI(gpt-5.6-luna · 추론 medium)를 씁니다.
+ * 정확도 평가에서 새 문서 40건 기준 로컬 qwen3.8:27b 보다 정밀도 · 재현율이 모두 높았고
+ * (95.6% · 93.2% 대 93.6% · 88.0%), 전량도 어림으로 몇 달러였습니다.
+ * 로컬 Ollama 는 설정 한 줄로 되돌릴 수 있게 남겨 둡니다. 코드는 같고 이 값만 다릅니다.
  *
  * <b>재시도 값도 여기 둡니다.</b>
  * 재시도는 모델 호출에만 합니다. ingest 와 policy 호출은 실패하면 실행을 바로 멈추므로
  * 재시도 값이 쓰일 곳이 모델 호출뿐입니다.
  *
  * <b>OpenAI 키는 provider 가 openai 일 때만 검사합니다.</b>
- * 키는 config 저장소에 두지 않고 OPENAI_API_KEY 환경변수에서 옵니다. 로컬은 ollama 로 도는데
- * 키를 늘 요구하면 쓰지도 않는 키를 모두가 넣어야 합니다.
+ * 키는 config 저장소에 두지 않고 OPENAI_API_KEY 환경변수에서 옵니다.
+ * 테스트와 로컬 Ollama 로 되돌린 실행은 키 없이 떠야 하므로 늘 요구하지 않습니다.
  *
  * 검증을 더할 때는 세 곳을 함께 봅니다.
  * <pre>
@@ -67,7 +69,8 @@ public record LlmProperties(
     /**
      * @param baseUrl        Ollama 주소 — 로컬은 localhost:11434 · 컨테이너는 OLLAMA_BASE_URL 로 덮음
      * @param model          모델 이름 — 추출 기록(extractedBy)에도 남음
-     * @param think          생각 모드 — 끔 (시험에서 끈 채로 정확도가 맞았고 켜면 토큰 · 시간이 몇 배)
+     * @param think          생각 모드 — 끔 (정확도 평가에서 켜면 재현율은 88.0 → 91.5% 로 오르나
+     *                       정밀도가 93.6 → 91.5% 로 내려가고 7배 느렸음)
      * @param numCtx         문맥 길이 — 가장 긴 입력(3천 자 남짓)과 프롬프트를 넉넉히 담는 값
      * @param numPredict     출력 길이 상한 — 넘으면 답이 잘려 그 문서만 실패로 둠
      * @param temperature    0 — 같은 입력에 같은 답 (다시 보내도 판이 안 오르게)
@@ -103,7 +106,8 @@ public record LlmProperties(
     /**
      * @param baseUrl         OpenAI 주소
      * @param model           모델 이름 — 추출 기록(extractedBy)에도 남음
-     * @param reasoningEffort 추론에 쓰는 힘 — 문장에서 칸을 고르는 일이라 low
+     * @param reasoningEffort 추론에 쓰는 힘 — medium (정확도 평가에서 low 보다 재현율이 크게 높았고
+     *                        high 와는 차이를 가려낼 수 없었음)
      * @param apiKey          OPENAI_API_KEY 환경변수 — provider 가 openai 일 때만 검사
      * @param timeoutSeconds  호출 제한 시간
      */

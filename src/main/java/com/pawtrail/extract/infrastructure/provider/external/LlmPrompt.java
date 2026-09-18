@@ -17,9 +17,15 @@ import java.util.regex.Pattern;
  * 한쪽만 고치면 로컬과 배포가 다른 질문을 하게 되어 결과를 견줄 수 없습니다.
  *
  * <b>프롬프트는 실물 표본으로 다듬어 확정한 판입니다.</b>
- * 2026.9.13 원문 덤프의 표본 28건(공사 · 고캠핑 · 문화정보원 · 회귀 · 입마개 세 갈래)으로
- * 네 번 고쳐 돌린 뒤 정했습니다. 판을 올릴 때는 VERSION 을 함께 올립니다.
- * 추출 기록(promptVersion)에 남아 어느 판으로 뽑은 조건인지 가려집니다.
+ * <pre>
+ * v1   2026.9.13 원문 덤프의 표본 28건(공사 · 고캠핑 · 문화정보원 · 회귀 · 입마개 세 갈래)으로
+ *      네 번 고쳐 돌린 뒤 정함
+ * v2   정확도 평가 100건에서 두 모델(로컬 · OpenAI)이 같은 모양으로 틀린 자리를 일반 규칙으로 더함
+ *      전 견종의 크기 · 견종 · 좁히는 말이 없는 입마개 · 크기에 붙은 입마개와 목줄 · 예치금
+ *      · 행동을 막는 말 · 실내 시설 하나 · 안고 들어가는 실내
+ *      평가 표본과 겹치지 않는 새 표본 40건으로 v1 과 견줌
+ * </pre>
+ * 판을 올릴 때는 VERSION 을 함께 올립니다. 추출 기록(promptVersion)에 남아 어느 판으로 뽑은 조건인지 가려집니다.
  *
  * <b>스키마는 두 구현이 같은 것을 씁니다.</b>
  * 타입 · enum · required · additionalProperties false · null 허용만 씁니다.
@@ -29,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public final class LlmPrompt {
 
-    public static final String VERSION = "v1";
+    public static final String VERSION = "v2";
 
     public static final String SYSTEM = """
             반려동물 동반 조건을 원문 조각에서 뽑아 JSON 으로 답한다.
@@ -49,18 +55,18 @@ public final class LlmPrompt {
             - scope: ALL_AREA 시설 전체에 동반 가능, PARTIAL 일부 구역만 되거나 일부 구역이 안 됨, NONE 반려동물 동반 불가. 구역을 말할 때만 적는다. "전 견종 동반 가능" 처럼 어떤 개가 되는지만 말하면 null 이다. excludedZones 나 allowedZonesOnly 를 적으면 PARTIAL 이다
             - guideDogOnly: 안내견(보조견)만 들어갈 수 있으면 true, 안내견이 아니어도 된다고 하면 false
             - petOnly: 반려동물과 함께 온 사람만 받는 곳이면 true, 반려동물 없이도 들어갈 수 있다고 하면 false
-            - indoorAllowed, outdoorAllowed: 실내, 실외에 반려견과 함께 들어갈 수 있으면 true, 안 되면 false
+            - indoorAllowed, outdoorAllowed: 실내, 실외에 반려견과 함께 들어갈 수 있으면 true, 안 되면 false. 실내의 시설 하나(카페, 전시실 등)만 막으면 indoorAllowed 는 적지 않고 그 시설을 excludedZones 에 적는다. 실내 전체가 안 된다고 할 때만 false 다. 안고 들어가야 하는 것처럼 조건을 붙여 허용한 실내도 indoorAllowed 를 적지 않는다
             - maxWeightKg, weightInclusive: 몸무게 상한과 그 값을 포함하는지. "10kg 이하" 는 10 과 true, "10kg 미만" 은 10 과 false
             - maxCount: 함께 들어갈 수 있는 마릿수 상한. "객실당 최대 2마리" 는 2
-            - sizeRule: SMALL_ONLY 소형견만, SMALL_MEDIUM 소형·중형견까지(대형견 불가), ALL 크기 제한 없음
-            - breedRule: NONE 견종 제한 없음, DANGEROUS_MUZZLE 맹견은 입마개를 하면 됨, DANGEROUS_BANNED 맹견은 불가. 맹견은 법이 정한 맹견 견종을 말한다. 몸무게나 행동(입질, 공격성, 짖음)에 따른 제한은 breedRule 이 아니다
+            - sizeRule: SMALL_ONLY 소형견만, SMALL_MEDIUM 소형·중형견까지(대형견 불가), ALL 크기 제한 없음. "전 견종 동반 가능" 은 ALL 이다. "10kg 이하 전 견종" 처럼 크기를 좁히는 말이 붙으면 ALL 이 아니다
+            - breedRule: NONE 견종 제한 없음, DANGEROUS_MUZZLE 맹견은 입마개를 하면 됨, DANGEROUS_BANNED 맹견은 불가. 맹견은 법이 정한 맹견 견종을 말한다. 맹견을 따로 말하지 않은 "전 견종 동반 가능" 은 NONE 이다. 몸무게, 크기(대형견 등), 행동(입질, 공격성, 짖음)에 따른 제한은 breedRule 이 아니다
             - carrierRequired: 목줄만으로는 안 되고 이동장, 가방, 유모차에 넣어야 하면 true, 넣지 않아도 된다고 하면 false
-            - leashRequired: 목줄이나 리드줄이 필요하면 true
-            - excludedZones: 반려동물이 들어갈 수 없는 구역 이름 (예: 실내, 객실, 수영장)
+            - leashRequired: 목줄이나 리드줄이 필요하면 true. 대형견에게만처럼 크기에 따라서만 요구하면 null
+            - excludedZones: 반려동물이 들어갈 수 없는 구역 이름 (예: 실내, 객실, 수영장). 구역 이름만 적는다. 입수처럼 행동을 막는 말은 구역이 아니다
             - allowedZonesOnly: 반려동물이 들어갈 수 있는 구역이 정해져 있으면 그 구역 이름 (예: 야외 테라스, B구역)
             - excludedDays: 동반이 안 되는 날이나 기간 (예: 주말, 공휴일, 금요일)
-            - extraFeeAmount, extraFeeUnit: 추가 요금(원)과 단위. PER_DOG 마리당, PER_NIGHT 1박당, PER_VISIT 1회 입장당. 단위를 말하지 않으면 extraFeeUnit 은 null
-            - requiredItems: 챙겨 가거나 착용해야 할 물건 (예: 배변봉투, 매너벨트, 인식표). 입마개는 모든 개에게 요구할 때만 여기에 넣는다. 맹견에게만 요구하면 breedRule 로 적고, 몸무게나 크기로 좁혀 요구하면 어디에도 적지 않는다
+            - extraFeeAmount, extraFeeUnit: 추가 요금(원)과 단위. PER_DOG 마리당, PER_NIGHT 1박당, PER_VISIT 1회 입장당. 단위를 말하지 않으면 extraFeeUnit 은 null. 돌려받는 예치금이나 보증금은 추가 요금이 아니므로 적지 않는다
+            - requiredItems: 챙겨 가거나 착용해야 할 물건 (예: 배변봉투, 매너벨트, 인식표). 물건만 적는다. 마킹 금지, 배변 관리처럼 행동을 막거나 요구하는 말은 물건이 아니다. 입마개가 있고 다른 조각이 입마개가 필요한 개를 좁히지 않으면 모든 개에게 요구하는 것이므로 여기에 넣는다. "맹견 제외" 처럼 들어올 수 있는 개를 줄이는 말은 입마개를 좁히는 말이 아니다. 맹견에게만 요구하면 breedRule 로 적고, 몸무게나 크기로 좁혀 요구하면 어디에도 적지 않는다
             - vaccineProof: 예방접종 증명이 필요하면 true
             - advanceInquiry: 가기 전에 문의나 예약 확인이 필요하다고 하면 true
 

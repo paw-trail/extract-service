@@ -70,12 +70,15 @@ class LlmPromptTest {
     }
 
     @Test
-    @DisplayName("프롬프트는 확정한 v1 이다")
+    @DisplayName("프롬프트는 v2 다 — v1 의 규칙 아홉과 예시를 그대로 두고 칸의 뜻에 일반 규칙을 더한 판")
     void 프롬프트_판() {
-        assertThat(LlmPrompt.VERSION).isEqualTo("v1");
+        assertThat(LlmPrompt.VERSION).isEqualTo("v2");
         assertThat(LlmPrompt.SYSTEM)
                 .startsWith("반려동물 동반 조건을 원문 조각에서 뽑아 JSON 으로 답한다.")
                 .contains("9. 근거는 조각 번호로만 답하고 문장을 새로 쓰지 않는다.")
+                .contains("\"전 견종 동반 가능\" 은 ALL 이다.")
+                .contains("맹견을 따로 말하지 않은 \"전 견종 동반 가능\" 은 NONE 이다.")
+                .contains("돌려받는 예치금이나 보증금은 추가 요금이 아니므로 적지 않는다")
                 .endsWith("{\"fieldName\":\"excludedZones\",\"segments\":[4]}]}");
     }
 }

@@ -106,7 +106,41 @@ dependencyManagement {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        // 모델을 실제로 부르는 정확도 평가는 기본 빌드에서 뺌 — 아래 llmEval 로 따로 돌림
+        // 빌드마다 로컬 Ollama 가 떠 있어야 하거나 OpenAI 요금이 나가면 안 되기 때문임
+        excludeTags 'llm-eval'
+    }
+}
+
+// LLM 추출 정확도 평가
+//   ./gradlew llmEval                                          로컬 Ollama · 평가 표본 100건
+//   ./gradlew llmEval "-Dapp.extract.llm.provider=openai"      OpenAI (OPENAI_API_KEY 환경변수 필요)
+//   ./gradlew llmEval "-Dllm.eval.set=holdout"                 새 표본 40건 — 프롬프트 판을 견줄 때
+// 보고서는 build/reports/llm-eval/ 에 남음
+//
+// * -D 인자는 따옴표로 감쌈. PowerShell 은 감싸지 않으면 첫 점에서 잘라
+//   ".extract.llm.provider=openai" 를 작업 이름으로 넘겨 Task not found 가 남
+//   macOS · Linux 의 셸도 따옴표를 그대로 받으므로 같은 명령을 씀
+// * 재는 작업이라 정확도로 빌드를 실패시키지 않음. 모델을 부를 수 없을 때만 실패함
+// * 입력이 같아도 모델 결과를 새로 재야 하므로 매번 다시 돔
+tasks.register('llmEval', Test) {
+    description = 'LLM 추출 정확도 평가 — 모델을 실제로 부름'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'llm-eval'
+    }
+    outputs.upToDateWhen { false }
+    // -D 로 넘긴 app.extract.* (구현 고르기) · llm.eval.* (표본 묶음 고르기) 값을 테스트 JVM 에 그대로 전달함
+    systemProperties System.getProperties().findAll {
+        it.key.toString().startsWith('app.extract.') || it.key.toString().startsWith('llm.eval.')
+    }
+    // 표본마다 진행을 찍어 오래 걸리는 동안 멈춘 것인지 보이게 함
+    testLogging {
+        showStandardStreams = true
+    }
 }
 
 // 실행 가능 jar 하나만 만듦
