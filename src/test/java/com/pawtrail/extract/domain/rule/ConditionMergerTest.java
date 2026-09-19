@@ -1,5 +1,7 @@
 package com.pawtrail.extract.domain.rule;
 
+import com.pawtrail.extract.domain.enums.BreedRule;
+import com.pawtrail.extract.domain.enums.ExtraFeeUnit;
 import com.pawtrail.extract.domain.enums.ExtractionMethod;
 import com.pawtrail.extract.domain.enums.Scope;
 import com.pawtrail.extract.domain.enums.SizeRule;
@@ -123,6 +125,85 @@ class ConditionMergerTest {
     }
 
     @Test
+    @DisplayName("고캠핑 불가능 대 모델이 크기만 읽음 — 가부 셋이 조용해도 허용 쪽 칸이면 갈린 것으로 본다")
+    void 허용_쪽_칸만_읽어도_갈림() {
+        ConditionFields rule = ConditionFields.builder()
+                .scope(Scope.NONE).indoorAllowed(false).outdoorAllowed(false).build();
+        List<Evidence> ruleEvidence = List.of(
+                Evidence.ofRule(FieldNames.SCOPE, "animalCmgCl", "불가능"),
+                Evidence.ofRule(FieldNames.INDOOR_ALLOWED, "animalCmgCl", "불가능"),
+                Evidence.ofRule(FieldNames.OUTDOOR_ALLOWED, "animalCmgCl", "불가능"));
+        LlmReading llm = reading(ConditionFields.builder().sizeRule(SizeRule.SMALL_ONLY).build(),
+                llmEvidence(FieldNames.SIZE_RULE, "intro", 3, "소형견만 출입 허용"));
+
+        MergedReading merged = ConditionMerger.merge(rule, ruleEvidence, llm);
+
+        // 세 칸만 보면 모델이 조용한 쪽이라 불가와 크기가 한 행에 함께 나가고 판정은 불가가 됨
+        assertThat(merged.fields().scope()).isNull();
+        assertThat(merged.fields().indoorAllowed()).isNull();
+        assertThat(merged.fields().outdoorAllowed()).isNull();
+        assertThat(merged.fields().sizeRule()).isEqualTo(SizeRule.SMALL_ONLY);
+        assertThat(merged.conflicts()).containsExactly(
+                new IntraConflict(FieldNames.SCOPE, "불가능", "소형견만 출입 허용"));
+    }
+
+    @Test
+    @DisplayName("목줄 같은 동반 방법 칸만 읽어도 허용 쪽이고 갈린 글은 그 칸들의 근거에서 모은다")
+    void 동반_방법_칸도_허용_쪽() {
+        ConditionFields rule = ConditionFields.builder()
+                .scope(Scope.NONE).indoorAllowed(false).outdoorAllowed(false).build();
+        List<Evidence> ruleEvidence = List.of(Evidence.ofRule(FieldNames.SCOPE, "animalCmgCl", "불가능"));
+        LlmReading llm = reading(ConditionFields.builder()
+                        .leashRequired(true).requiredItems(List.of("배변봉투")).build(),
+                llmEvidence(FieldNames.LEASH_REQUIRED, "intro", 2, "반려견은 목줄 착용 후 입장"),
+                llmEvidence(FieldNames.REQUIRED_ITEMS, "intro", 4, "배변봉투 지참"));
+
+        MergedReading merged = ConditionMerger.merge(rule, ruleEvidence, llm);
+
+        // 가부 세 칸의 근거만 모으면 모델 쪽 글이 비어 policy 가 400 으로 막음
+        assertThat(merged.conflicts()).containsExactly(
+                new IntraConflict(FieldNames.SCOPE, "불가능", "반려견은 목줄 착용 후 입장 / 배변봉투 지참"));
+        assertThat(merged.fields().leashRequired()).isTrue();
+        assertThat(merged.fields().requiredItems()).containsExactly("배변봉투");
+    }
+
+    @Test
+    @DisplayName("안내견 한정 · 사전 문의 · 맹견 불가 · 짝 칸 · 빈 목록 · 전용 아님은 허용 쪽으로 보지 않는다")
+    void 허용_쪽이_아닌_칸() {
+        ConditionFields rule = ConditionFields.builder()
+                .scope(Scope.NONE).indoorAllowed(false).outdoorAllowed(false).build();
+        List<Evidence> ruleEvidence = List.of(Evidence.ofRule(FieldNames.SCOPE, "animalCmgCl", "불가능"));
+        LlmReading llm = reading(ConditionFields.builder()
+                        .guideDogOnly(true).advanceInquiry(true).breedRule(BreedRule.DANGEROUS_BANNED)
+                        .weightInclusive(true).extraFeeUnit(ExtraFeeUnit.PER_DOG)
+                        .requiredItems(List.of()).petOnly(false).build(),
+                llmEvidence(FieldNames.GUIDE_DOG_ONLY, "intro", 1, "안내견만 출입 가능"));
+
+        MergedReading merged = ConditionMerger.merge(rule, ruleEvidence, llm);
+
+        // 안내견 한정은 불가와 같은 쪽이고 사전 문의는 동반 여부를 묻는 데도 쓰임
+        assertThat(merged.conflicts()).isEmpty();
+        assertThat(merged.fields().scope()).isEqualTo(Scope.NONE);
+        assertThat(merged.fields().guideDogOnly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("반대 방향 — 규칙이 허용 쪽 칸만 말하고 모델이 불가면 갈린 것으로 본다")
+    void 반대_방향도_갈림() {
+        ConditionFields rule = ConditionFields.builder().sizeRule(SizeRule.SMALL_ONLY).build();
+        List<Evidence> ruleEvidence = List.of(Evidence.ofRule(FieldNames.SIZE_RULE, "입장 가능 동물 크기", "소형"));
+        LlmReading llm = reading(ConditionFields.builder().scope(Scope.NONE).build(),
+                llmEvidence(FieldNames.SCOPE, "반려동물 제한사항", 0, "반려동물 동반 불가"));
+
+        MergedReading merged = ConditionMerger.merge(rule, ruleEvidence, llm);
+
+        assertThat(merged.fields().scope()).isNull();
+        assertThat(merged.fields().sizeRule()).isEqualTo(SizeRule.SMALL_ONLY);
+        assertThat(merged.conflicts()).containsExactly(
+                new IntraConflict(FieldNames.SCOPE, "소형", "반려동물 동반 불가"));
+    }
+
+    @Test
     @DisplayName("문화정보원 실내 Y 대 야외만 동반 가능 — 실내만 비우고 실외는 그대로")
     void 실내만_갈림() {
         ConditionFields rule = ConditionFields.builder().indoorAllowed(true).outdoorAllowed(true).build();
@@ -204,6 +285,6 @@ class ConditionMergerTest {
     }
 
     private static Evidence llmEvidence(String field, String origin, int index, String text) {
-        return new Evidence(field, origin, index, text);
+        return Evidence.ofLlm(field, origin, index, text);
     }
 }

@@ -17,7 +17,8 @@ import java.util.UUID;
  *
  * 조건 칸은 ConditionFields 를 그대로 싣습니다. 칸 이름과 타입이 policy 의 PolicyFieldsRequest 와 같게
  * 만들어 두었고, 비어 있는 칸은 null 로 나가 "정보 없음" 이 됩니다.
- * 근거도 Evidence 를 그대로 싣습니다 — policy 의 EvidenceRequest 와 네 칸이 같습니다.
+ * 근거도 Evidence 를 그대로 싣습니다 — policy 의 EvidenceRequest 와 다섯 칸이 같습니다.
+ * 근거 줄의 추출 방식(RULE · LLM)은 policy v0.1.2 부터 받는 칸이며 빠지면 400 입니다.
  * 소스 내 충돌만 모양이 달라 여기서 바꿉니다. policy 는 두 값을 field · text 두 키의 Map 으로 받습니다.
  */
 public record PolicyBulkRequest(

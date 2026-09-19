@@ -38,6 +38,12 @@ import java.util.stream.Collectors;
  * 비운 칸 사이로 한쪽 값이 새어 나와 반만 불가인 조건이 됩니다.
  * 불가 대 허용이 아니면(둘 다 허용인데 칸이 다른 식) 세 칸도 다른 칸처럼 하나씩 봅니다.
  *
+ * <b>가부 세 칸이 조용해도 동반을 전제로 한 칸을 말했으면 허용으로 봅니다.</b>
+ * 모델은 "소형견만 출입 허용" 을 크기 칸으로만 읽고 가부 세 칸을 비워 두기도 합니다.
+ * 세 칸만 보면 규칙의 불가와 갈린 것이 안 잡혀, 불가와 크기가 한 행에 함께 나가고 판정은 불가가 됩니다.
+ * 체중 · 크기 · 마릿수 · 구역 · 요일 같은 허용 범위와 목줄 · 이동장 · 준비물 · 접종 증명 · 추가 요금 같은
+ * 동반 방법은 들어갈 수 있을 때만 쓰는 말이라 허용 쪽으로 봅니다 (ALLOWING).
+ *
  * <b>갈린 쪽을 고르지 않습니다.</b>
  * 규칙 값을 이기게 하면 본문이 따로 말하는 사정(야외만 · 소형견만)이 사라지고,
  * 모델 값을 이기게 하면 모델이 잘못 읽은 것이 그대로 나갑니다.
@@ -50,6 +56,18 @@ public final class ConditionMerger {
     // 가부 묶음 — 동반이 되는지 자체를 말하는 세 칸
     private static final List<String> ACCESS = List.of(
             FieldNames.SCOPE, FieldNames.INDOOR_ALLOWED, FieldNames.OUTDOOR_ALLOWED);
+
+    // 가부 세 칸이 조용할 때 허용으로 볼 칸 — 동반될 때만 쓰는 말
+    //   허용 범위   반려동물 전용(참) · 체중 · 마릿수 · 크기 · 맹견 규칙(맹견 불가 제외) · 구역 · 요일
+    //   동반 방법   이동장 · 목줄 · 추가 요금 · 준비물 · 접종 증명
+    //   넣지 않음   안내견 한정(불가와 같은 쪽) · 사전 문의(동반 여부 문의에도 쓰임)
+    //              · 체중 이하 여부 · 요금 단위(짝 칸이라 혼자서는 뜻이 없음)
+    private static final List<String> ALLOWING = List.of(
+            FieldNames.PET_ONLY, FieldNames.MAX_WEIGHT_KG, FieldNames.MAX_COUNT,
+            FieldNames.SIZE_RULE, FieldNames.BREED_RULE, FieldNames.CARRIER_REQUIRED,
+            FieldNames.LEASH_REQUIRED, FieldNames.EXCLUDED_ZONES, FieldNames.ALLOWED_ZONES_ONLY,
+            FieldNames.EXCLUDED_DAYS, FieldNames.EXTRA_FEE_AMOUNT, FieldNames.REQUIRED_ITEMS,
+            FieldNames.VACCINE_PROOF);
 
     private static final String JOIN = " / ";
 
@@ -72,12 +90,13 @@ public final class ConditionMerger {
         Set<String> settled = new HashSet<>();
 
         // 가부가 정면으로 갈리면 세 칸을 한꺼번에 비우고 범위에 한 줄
-        Access ruleAccess = access(ruleFields);
-        Access llmAccess = access(llmFields);
-        if (ruleAccess.opposes(llmAccess)) {
+        // 글은 각 쪽이 가부를 말한 칸의 근거에서 모음 — 허용 쪽 칸으로 말했으면 그 칸들의 근거까지
+        Stance ruleStance = stance(ruleFields);
+        Stance llmStance = stance(llmFields);
+        if (ruleStance.access().opposes(llmStance.access())) {
             conflicts.add(new IntraConflict(FieldNames.SCOPE,
-                    texts(ruleByField, ACCESS, ruleFields),
-                    texts(llmByField, ACCESS, llmFields)));
+                    texts(ruleByField, ruleStance.fields(), ruleFields),
+                    texts(llmByField, llmStance.fields(), llmFields)));
             settled.addAll(ACCESS);
         }
 
@@ -124,24 +143,56 @@ public final class ConditionMerger {
     }
 
     /**
-     * 가부 세 칸이 동반 불가를 말하는지, 동반된다고 말하는지, 아무 말도 없는지 가립니다.
+     * 한쪽이 동반 불가를 말하는지, 동반된다고 말하는지, 아무 말도 없는지와 그것을 말한 칸을 가립니다.
      *
      * 범위가 동반 불가이거나 실내 · 실외가 둘 다 불가면 불가입니다.
      * 범위가 전 구역 · 일부 구역이거나 실내 · 실외 중 하나라도 된다고 하면 허용입니다.
      * 실내만 불가처럼 한 칸만 막는 것은 허용 쪽의 세부라 불가로 보지 않습니다.
+     *
+     * 세 칸으로 가려지지 않으면 동반을 전제로 한 칸(ALLOWING)을 봅니다.
+     * 하나라도 말했으면 허용이며, 갈린 자리의 글은 세 칸과 그 칸들의 근거에서 모읍니다.
+     * 세 칸의 근거만 모으면 글이 비어 policy 가 소스 내 충돌을 400 으로 막습니다.
      */
-    private static Access access(ConditionFields fields) {
+    private static Stance stance(ConditionFields fields) {
         Scope scope = fields.scope();
         Boolean indoor = fields.indoorAllowed();
         Boolean outdoor = fields.outdoorAllowed();
         if (scope == Scope.NONE || (Boolean.FALSE.equals(indoor) && Boolean.FALSE.equals(outdoor))) {
-            return Access.BANNED;
+            return new Stance(Access.BANNED, ACCESS);
         }
         if (scope == Scope.ALL_AREA || scope == Scope.PARTIAL
                 || Boolean.TRUE.equals(indoor) || Boolean.TRUE.equals(outdoor)) {
-            return Access.ALLOWED;
+            return new Stance(Access.ALLOWED, ACCESS);
         }
-        return Access.SILENT;
+        List<String> allowing = ALLOWING.stream().filter(field -> allows(fields, field)).toList();
+        if (allowing.isEmpty()) {
+            return new Stance(Access.SILENT, ACCESS);
+        }
+        List<String> spoken = new ArrayList<>(ACCESS);
+        spoken.addAll(allowing);
+        return new Stance(Access.ALLOWED, spoken);
+    }
+
+    /**
+     * 칸 하나가 동반을 전제로 한 말인지 봅니다.
+     *
+     * 반려동물 전용은 참일 때만, 맹견 규칙은 맹견 불가가 아닐 때만 허용 쪽입니다.
+     * 맹견 불가는 맹견만 막는 말이라 전체 불가와도 어울립니다.
+     * 목록 칸은 항목이 있을 때만 봅니다.
+     */
+    private static boolean allows(ConditionFields fields, String field) {
+        Object value = fields.get(field);
+        return switch (field) {
+            case FieldNames.PET_ONLY -> Boolean.TRUE.equals(value);
+            case FieldNames.BREED_RULE -> value != null && value != BreedRule.DANGEROUS_BANNED;
+            default -> value instanceof List<?> list ? !list.isEmpty() : value != null;
+        };
+    }
+
+    /**
+     * @param fields 그 가부를 말한 칸 — 갈린 자리의 글을 이 칸들의 근거에서 모음
+     */
+    private record Stance(Access access, List<String> fields) {
     }
 
     private enum Access {

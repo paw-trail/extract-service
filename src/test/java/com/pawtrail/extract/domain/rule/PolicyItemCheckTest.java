@@ -26,7 +26,7 @@ class PolicyItemCheckTest {
     void 정상() {
         PolicyItem item = item(ConditionFields.builder()
                         .maxWeightKg(new BigDecimal("999.99")).maxCount((short) 1).extraFeeAmount(0).build(),
-                List.of(new Evidence(FieldNames.MAX_WEIGHT_KG, "etcAcmpyInfo", 0, "10kg 이하")),
+                List.of(Evidence.ofLlm(FieldNames.MAX_WEIGHT_KG, "etcAcmpyInfo", 0, "10kg 이하")),
                 List.of(new IntraConflict(FieldNames.SCOPE, "불가능", "소형견만 출입 허용")));
 
         assertThat(PolicyItemCheck.check(item)).isEmpty();
@@ -61,11 +61,22 @@ class PolicyItemCheckTest {
     @DisplayName("근거는 20칸 이름 · 40자 이하 원문 키 · 비지 않은 문구여야 한다")
     void 근거() {
         List<Evidence> bad = List.of(
-                new Evidence("unknownField", "k", 0, "t"),
-                new Evidence(FieldNames.SCOPE, "k".repeat(41), 0, "t"),
-                new Evidence(FieldNames.SCOPE, "k", 0, " "));
+                Evidence.ofLlm("unknownField", "k", 0, "t"),
+                Evidence.ofLlm(FieldNames.SCOPE, "k".repeat(41), 0, "t"),
+                Evidence.ofLlm(FieldNames.SCOPE, "k", 0, " "));
 
         assertThat(PolicyItemCheck.check(item(ConditionFields.empty(), bad, List.of()))).hasSize(3);
+    }
+
+    @Test
+    @DisplayName("근거의 추출 방식은 RULE · LLM 이어야 한다")
+    void 근거의_추출_방식() {
+        // policy 가 근거 줄마다 받는 값이라 빠지거나 출처 행의 값(MIXED)이 오면 청크 전체가 400
+        List<Evidence> bad = List.of(
+                new Evidence(FieldNames.SCOPE, "k", 0, "t", null),
+                new Evidence(FieldNames.SCOPE, "k", 0, "t", ExtractionMethod.MIXED));
+
+        assertThat(PolicyItemCheck.check(item(ConditionFields.empty(), bad, List.of()))).hasSize(2);
     }
 
     @Test

@@ -91,7 +91,7 @@ public final class CitationCheck {
             }
             for (Integer number : numbers) {
                 Segment segment = byNumber.get(number);
-                evidence.add(new Evidence(name, segment.originField(), segment.indexInField(), segment.text()));
+                evidence.add(Evidence.ofLlm(name, segment.originField(), segment.indexInField(), segment.text()));
             }
         }
 
