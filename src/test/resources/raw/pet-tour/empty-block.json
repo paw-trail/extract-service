@@ -1,0 +1,33 @@
+{
+  "list": {
+    "tel": null,
+    "cat1": "A02",
+    "cat2": "A0201",
+    "cat3": "A02010700",
+    "mapx": "127.7619282638",
+    "mapy": "38.1060946985",
+    "addr1": "강원특별자치도 화천군 화천읍 평화로 685",
+    "addr2": null,
+    "title": "꺼먹다리",
+    "mlevel": "6",
+    "zipcode": "24132",
+    "areacode": "32",
+    "showflag": "1",
+    "contentid": "2702470",
+    "firstimage": "http://tong.visitkorea.or.kr/cms/resource/63/3484963_image2_1.png",
+    "lclsSystm1": "HS",
+    "lclsSystm2": "HS01",
+    "lclsSystm3": "HS011100",
+    "cpyrhtDivCd": "Type3",
+    "createdtime": "20211230224552",
+    "firstimage2": "http://tong.visitkorea.or.kr/cms/resource/63/3484963_image3_1.png",
+    "lDongRegnCd": "51",
+    "sigungucode": "17",
+    "modifiedtime": "20251120142416",
+    "contenttypeid": "12",
+    "lDongSignguCd": "790"
+  },
+  "intro": {},
+  "common": {},
+  "petTour": {}
+}
