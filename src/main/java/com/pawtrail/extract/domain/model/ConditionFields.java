@@ -31,8 +31,9 @@ import java.util.stream.Stream;
  * 같은 타입이 이어지는 칸(실내 · 실외 같은 Boolean)은 생성자 인자 순서가 뒤바뀌어도
  * 컴파일이 통과해 값이 조용히 엇갈립니다. policy 의 PolicyFields 도 Lombok 빌더를 씁니다.
  * 빌더 이름을 Builder 로 둔 것은 규칙이 ConditionFields.Builder 로 받아 쓰기 때문입니다.
+ * toBuilder 는 정규화가 몇 칸만 채운 사본을 만들 때 씁니다 — 나머지 칸을 하나씩 옮기다 빠뜨릴 자리가 없습니다.
  */
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", toBuilder = true)
 public record ConditionFields(
         Scope scope,
         Boolean guideDogOnly,
