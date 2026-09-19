@@ -23,7 +23,7 @@ class ConditionNormalizerTest {
     @DisplayName("범위가 동반 불가면 비어 있는 실내 · 실외를 불가로 채우고 범위의 근거를 옮긴다")
     void 동반_불가면_실내외도_불가() {
         MergedReading reading = reading(ConditionFields.builder().scope(Scope.NONE).build(),
-                List.of(new Evidence(FieldNames.SCOPE, "etcAcmpyInfo", 0, "반려동물 동반 불가")));
+                List.of(Evidence.ofLlm(FieldNames.SCOPE, "etcAcmpyInfo", 0, "반려동물 동반 불가")));
 
         MergedReading normalized = ConditionNormalizer.normalize(reading);
 
@@ -38,7 +38,7 @@ class ConditionNormalizerTest {
     @DisplayName("허용 구역만 말하고 범위를 비워 두면 일부 구역으로 채운다")
     void 허용_구역이면_일부_구역() {
         MergedReading reading = reading(ConditionFields.builder().allowedZonesOnly(List.of("반려 구역")).build(),
-                List.of(new Evidence(FieldNames.ALLOWED_ZONES_ONLY, "intro", 2, "반려 구역에서만 동반 가능")));
+                List.of(Evidence.ofLlm(FieldNames.ALLOWED_ZONES_ONLY, "intro", 2, "반려 구역에서만 동반 가능")));
 
         MergedReading normalized = ConditionNormalizer.normalize(reading);
 
@@ -51,7 +51,7 @@ class ConditionNormalizerTest {
     @DisplayName("제외 구역이 있어도 일부 구역으로 채운다")
     void 제외_구역이면_일부_구역() {
         MergedReading reading = reading(ConditionFields.builder().excludedZones(List.of("수영장")).build(),
-                List.of(new Evidence(FieldNames.EXCLUDED_ZONES, "intro", 1, "수영장은 반려견 이용 불가")));
+                List.of(Evidence.ofLlm(FieldNames.EXCLUDED_ZONES, "intro", 1, "수영장은 반려견 이용 불가")));
 
         assertThat(ConditionNormalizer.normalize(reading).fields().scope()).isEqualTo(Scope.PARTIAL);
     }
@@ -60,14 +60,49 @@ class ConditionNormalizerTest {
     @DisplayName("실내만 막고 실외는 되면 일부 구역으로 채운다")
     void 실내만_막으면_일부_구역() {
         MergedReading reading = reading(ConditionFields.builder().indoorAllowed(false).outdoorAllowed(true).build(),
-                List.of(new Evidence(FieldNames.INDOOR_ALLOWED, "제한사항", 0, "야외만 동반 가능"),
-                        new Evidence(FieldNames.OUTDOOR_ALLOWED, "제한사항", 0, "야외만 동반 가능")));
+                List.of(Evidence.ofLlm(FieldNames.INDOOR_ALLOWED, "제한사항", 0, "야외만 동반 가능"),
+                        Evidence.ofLlm(FieldNames.OUTDOOR_ALLOWED, "제한사항", 0, "야외만 동반 가능")));
 
         MergedReading normalized = ConditionNormalizer.normalize(reading);
 
         assertThat(normalized.fields().scope()).isEqualTo(Scope.PARTIAL);
         // 같은 문구는 한 번만 옮김
         assertThat(normalized.evidence()).filteredOn(e -> e.fieldName().equals(FieldNames.SCOPE)).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("규칙이 읽은 실내 불가 · 실외 가능은 일부 구역으로 채우지 않는다")
+    void 규칙이_읽은_실외만은_그대로() {
+        // 한국문화정보원 실내 N · 실외 Y — 실내만 되는 곳(실내 Y · 실외 N)과 같게 범위를 비워 둠
+        MergedReading reading = reading(ConditionFields.builder().indoorAllowed(false).outdoorAllowed(true).build(),
+                List.of(Evidence.ofRule(FieldNames.INDOOR_ALLOWED, "장소(실내) 여부", "장소(실내) 여부 N"),
+                        Evidence.ofRule(FieldNames.OUTDOOR_ALLOWED, "장소(실외)여부", "장소(실외)여부 Y")));
+
+        assertThat(ConditionNormalizer.normalize(reading).fields().scope()).isNull();
+    }
+
+    @Test
+    @DisplayName("실내 · 실외 중 한쪽만 모델이 읽었으면 채우지 않는다")
+    void 한쪽만_모델이면_그대로() {
+        MergedReading reading = reading(ConditionFields.builder().indoorAllowed(false).outdoorAllowed(true).build(),
+                List.of(Evidence.ofRule(FieldNames.INDOOR_ALLOWED, "장소(실내) 여부", "장소(실내) 여부 N"),
+                        Evidence.ofLlm(FieldNames.OUTDOOR_ALLOWED, "반려동물 제한사항", 0, "야외 동반 가능")));
+
+        assertThat(ConditionNormalizer.normalize(reading).fields().scope()).isNull();
+    }
+
+    @Test
+    @DisplayName("옮겨 적는 근거는 원래 근거의 추출 방식을 그대로 쓴다")
+    void 옮긴_근거의_방식() {
+        MergedReading reading = reading(ConditionFields.builder().scope(Scope.NONE).build(),
+                List.of(Evidence.ofRule(FieldNames.SCOPE, "animalCmgCl", "불가능")));
+
+        MergedReading normalized = ConditionNormalizer.normalize(reading);
+
+        assertThat(normalized.evidence()).extracting(Evidence::fieldName)
+                .containsExactly(FieldNames.SCOPE, FieldNames.INDOOR_ALLOWED, FieldNames.OUTDOOR_ALLOWED);
+        assertThat(normalized.evidence()).extracting(Evidence::extractionMethod)
+                .containsOnly(ExtractionMethod.RULE);
     }
 
     @Test
@@ -99,7 +134,7 @@ class ConditionNormalizerTest {
     @DisplayName("채울 것이 없으면 그대로 돌려준다")
     void 채울_것_없음() {
         MergedReading reading = reading(ConditionFields.builder().leashRequired(true).build(),
-                List.of(new Evidence(FieldNames.LEASH_REQUIRED, "t", 0, "목줄 착용")));
+                List.of(Evidence.ofLlm(FieldNames.LEASH_REQUIRED, "t", 0, "목줄 착용")));
 
         MergedReading normalized = ConditionNormalizer.normalize(reading);
 

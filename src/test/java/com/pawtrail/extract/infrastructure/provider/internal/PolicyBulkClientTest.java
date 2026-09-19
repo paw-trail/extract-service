@@ -68,6 +68,8 @@ class PolicyBulkClientTest {
                 .andExpect(jsonPath("$.items[0].evidence[0].fieldName").value("scope"))
                 .andExpect(jsonPath("$.items[0].evidence[0].originField").value("animalCmgCl"))
                 .andExpect(jsonPath("$.items[0].evidence[0].segmentText").value("불가능"))
+                // 근거 줄마다 읽은 쪽 — policy v0.1.2 부터 필수
+                .andExpect(jsonPath("$.items[0].evidence[0].extractionMethod").value("RULE"))
                 .andExpect(jsonPath("$.items[0].conflicts[0].fieldName").value("scope"))
                 .andExpect(jsonPath("$.items[0].conflicts[0].sourceValues.field").value("불가능"))
                 .andExpect(jsonPath("$.items[0].conflicts[0].sourceValues.text").value("소형견만 출입 허용"))
