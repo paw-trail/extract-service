@@ -13,9 +13,9 @@ import java.time.Duration;
  * skipped       보내지 않고 처리 완료로 둔 수 (문화정보원 동물병원)
  * failed        처리 실패로 둔 수
  * conflicts     보낸 항목에 담긴 소스 내 충돌 수
- * siblings      한 실행에서 같은 장소 · 같은 소스를 두 번 보낸 수 — 나중 것이 이김
+ * siblings      같은 장소 · 같은 소스의 다른 원문을 앞의 결과와 합친 수
  * statusSkipped 가져간 사이에 내용이 바뀌어 ingest 가 대기로 남긴 수
- * calls         모델을 부른 수
+ * calls         새로 읽은 입력 수 — 두 번 읽으면 API 호출은 그 두 배
  * reused        같은 입력이라 앞의 답을 다시 쓴 수
  * elapsed       걸린 시간
  * </pre>
