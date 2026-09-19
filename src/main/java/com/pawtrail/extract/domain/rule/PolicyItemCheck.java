@@ -1,5 +1,6 @@
 package com.pawtrail.extract.domain.rule;
 
+import com.pawtrail.extract.domain.enums.ExtractionMethod;
 import com.pawtrail.extract.domain.model.ConditionFields;
 import com.pawtrail.extract.domain.model.Evidence;
 import com.pawtrail.extract.domain.model.FieldNames;
@@ -109,6 +110,12 @@ public final class PolicyItemCheck {
         }
         if (isBlank(evidence.segmentText())) {
             problems.add("근거 문구가 비어 있음: " + evidence.fieldName());
+        }
+        // 근거 줄의 방식은 RULE · LLM 둘뿐 — 출처 행의 MIXED · MANUAL 은 근거 한 줄의 값이 아님
+        if (evidence.extractionMethod() != ExtractionMethod.RULE
+                && evidence.extractionMethod() != ExtractionMethod.LLM) {
+            problems.add("근거의 추출 방식이 RULE · LLM 이 아님: "
+                    + evidence.fieldName() + " " + evidence.extractionMethod());
         }
     }
 

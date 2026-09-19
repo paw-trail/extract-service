@@ -41,7 +41,7 @@ class EvalReportWriterTest {
         EvalScore score = new EvalScore();
         LlmReading reading = new LlmReading(
                 ConditionFields.builder().sizeRule(SizeRule.ALL).build(),
-                List.of(new Evidence("sizeRule", "acmpyPsblCpam", null, "소형견만 동반 가능")),
+                List.of(Evidence.ofLlm("sizeRule", "acmpyPsblCpam", null, "소형견만 동반 가능")),
                 0, 0, 0);
         score.add(sample(Map.of("sizeRule", "SMALL_ONLY"), Map.of("sizeRule", List.of(1))), SEGMENTS, reading);
 

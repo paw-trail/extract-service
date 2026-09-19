@@ -35,8 +35,8 @@ class CitationCheckTest {
 
         assertThat(reading.fields().sizeRule()).isEqualTo(SizeRule.ALL);
         assertThat(reading.evidence()).containsExactly(
-                new Evidence("sizeRule", "acmpyPsblCpam", null, "전 견종 동반 가능"),
-                new Evidence("breedRule", "etcAcmpyInfo", 2, "- 맹견의 경우, 입마개 착용 필수"));
+                Evidence.ofLlm("sizeRule", "acmpyPsblCpam", null, "전 견종 동반 가능"),
+                Evidence.ofLlm("breedRule", "etcAcmpyInfo", 2, "- 맹견의 경우, 입마개 착용 필수"));
         assertThat(reading.droppedValues()).isZero();
         assertThat(reading.ignoredCitations()).isZero();
         assertThat(reading.droppedNumbers()).isZero();

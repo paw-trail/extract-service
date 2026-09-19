@@ -199,6 +199,6 @@ class ReadingMergerTest {
     }
 
     private static Evidence line(String field, String text) {
-        return new Evidence(field, "etcAcmpyInfo", 1, text);
+        return Evidence.ofLlm(field, "etcAcmpyInfo", 1, text);
     }
 }

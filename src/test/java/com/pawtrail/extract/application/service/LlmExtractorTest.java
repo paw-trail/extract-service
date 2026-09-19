@@ -42,7 +42,7 @@ class LlmExtractorTest {
         assertThat(reading.fields().sizeRule()).isEqualTo(SizeRule.ALL);
         assertThat(reading.fields().vaccineProof()).isNull();
         assertThat(reading.droppedValues()).isEqualTo(1);
-        assertThat(reading.evidence()).containsExactly(new Evidence("sizeRule", "acmpyPsblCpam", null, "전 견종 동반 가능"));
+        assertThat(reading.evidence()).containsExactly(Evidence.ofLlm("sizeRule", "acmpyPsblCpam", null, "전 견종 동반 가능"));
     }
 
     @Test

@@ -31,9 +31,9 @@ class EvalScoreTest {
                 Map.of("sizeRule", List.of(1), "leashRequired", List.of(2), "requiredItems", List.of(3)));
         LlmReading reading = new LlmReading(
                 ConditionFields.builder().sizeRule(SizeRule.ALL).leashRequired(true).vaccineProof(true).build(),
-                List.of(new Evidence("sizeRule", "acmpyPsblCpam", null, "전 견종 동반 가능"),
-                        new Evidence("leashRequired", "etcAcmpyInfo", 1, "- 배변봉투 지참 및 배변처리 필수"),
-                        new Evidence("vaccineProof", "acmpyPsblCpam", null, "전 견종 동반 가능")),
+                List.of(Evidence.ofLlm("sizeRule", "acmpyPsblCpam", null, "전 견종 동반 가능"),
+                        Evidence.ofLlm("leashRequired", "etcAcmpyInfo", 1, "- 배변봉투 지참 및 배변처리 필수"),
+                        Evidence.ofLlm("vaccineProof", "acmpyPsblCpam", null, "전 견종 동반 가능")),
                 0, 0, 0);
 
         EvalScore score = new EvalScore();
@@ -65,8 +65,8 @@ class EvalScoreTest {
     @DisplayName("근거를 문서 전체의 조각 번호로 되돌린다")
     void 번호_되돌리기() {
         Map<String, List<Integer>> numbers = EvalScore.numbers(List.of(
-                new Evidence("leashRequired", "acmpyNeedMtr", 1, "목줄 착용"),
-                new Evidence("requiredItems", "etcAcmpyInfo", 1, "- 배변봉투 지참 및 배변처리 필수")), SEGMENTS);
+                Evidence.ofLlm("leashRequired", "acmpyNeedMtr", 1, "목줄 착용"),
+                Evidence.ofLlm("requiredItems", "etcAcmpyInfo", 1, "- 배변봉투 지참 및 배변처리 필수")), SEGMENTS);
 
         assertThat(numbers).containsEntry("leashRequired", List.of(2)).containsEntry("requiredItems", List.of(3));
     }
