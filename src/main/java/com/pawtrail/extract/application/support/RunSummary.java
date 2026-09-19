@@ -19,6 +19,10 @@ import java.time.Duration;
  * reused        같은 입력이라 앞의 답을 다시 쓴 수
  * elapsed       걸린 시간
  * </pre>
+ *
+ * 수는 policy 로 보내고 ingest 에 되돌려 쓰기까지 끝난 청크만 셉니다.
+ * 중간에 멈춘 청크는 원문 상태가 그대로라 다음 실행이 다시 가져가므로 이 요약에 넣지 않습니다.
+ * 모델 호출 · 재사용만은 실제로 부른 수라 멈춘 청크의 호출도 들어갑니다.
  */
 public record RunSummary(
         Stop stop,

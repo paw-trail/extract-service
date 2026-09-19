@@ -22,9 +22,10 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * ingest 의 대기 원문을 한 청크씩 끝까지 처리합니다.
@@ -108,7 +109,9 @@ public class ExtractRunner {
                       Tally tally, LlmReuse reuse) {
         int consecutiveFailures = 0;
         int idleChunks = 0;
-        Set<String> sentKeys = new HashSet<>();
+        // 장소 · 소스마다 처음 보낸 원문 — 다른 원문이 같은 자리로 오면 형제 원문
+        // 같은 원문이 다시 오는 것(가져간 사이 재수집으로 대기에 남았던 것)은 형제가 아님
+        Map<String, UUID> firstSent = new HashMap<>();
 
         while (true) {
             int size = limit == null
@@ -123,10 +126,14 @@ public class ExtractRunner {
                 return Stop.DRAINED;
             }
 
+            // 이 청크의 수 — 보내고 되돌려 쓰기까지 끝난 뒤에만 실행 합계에 더함
+            // 중간에 멈춘 청크는 원문 상태가 그대로라 합계에 넣으면 요약이 실제와 어긋남
             List<PolicyItem> items = new ArrayList<>();
             List<StatusMark> done = new ArrayList<>();
             List<StatusMark> failed = new ArrayList<>();
+            int skipped = 0;
             int conflicts = 0;
+            int siblings = 0;
             boolean tooManyFailures = false;
 
             for (PendingDocument document : page.documents()) {
@@ -137,20 +144,20 @@ public class ExtractRunner {
                         done.add(document.mark());
                         conflicts += outcome.item().conflicts().size();
                         consecutiveFailures = 0;
-                        if (!sentKeys.add(document.placeId() + "/" + document.source())) {
-                            tally.siblings++;
+                        UUID first = firstSent.putIfAbsent(document.placeId() + "/" + document.source(), document.id());
+                        if (first != null && !first.equals(document.id())) {
+                            siblings++;
                             log.info("같은 장소 · 같은 소스의 원문을 한 실행에서 두 번 보냅니다. 나중 것이 이깁니다. "
                                     + "장소={} 소스={} 원문={}", document.placeId(), document.source(), document.sourceId());
                         }
                     }
                     case SKIPPED -> {
                         done.add(document.mark());
-                        tally.skipped++;
+                        skipped++;
                         consecutiveFailures = 0;
                     }
                     case FAILED -> {
                         failed.add(document.mark());
-                        tally.failed++;
                         consecutiveFailures++;
                         log.warn("원문을 처리 실패로 둡니다. 소스={} 원문={} 까닭={}",
                                 document.source(), document.sourceId(), outcome.reason());
@@ -170,7 +177,10 @@ public class ExtractRunner {
             tally.chunks++;
             tally.fetched += done.size() + failed.size();
             tally.sent += items.size();
+            tally.skipped += skipped;
+            tally.failed += failed.size();
             tally.conflicts += conflicts;
+            tally.siblings += siblings;
             tally.statusSkipped += status.skipped();
             log.info("청크 {} — 보냄 {} · 실패 {} · 충돌 {} · 상태 바꿈 {} · 건너뜀 {} · 누적 {} · 남은 대기 {}",
                     tally.chunks, items.size(), failed.size(), conflicts, status.updated(), status.skipped(),

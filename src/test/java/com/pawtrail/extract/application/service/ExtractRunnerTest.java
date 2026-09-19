@@ -27,9 +27,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -136,16 +138,41 @@ class ExtractRunnerTest {
     }
 
     @Test
-    @DisplayName("policy 가 받지 않으면 그 청크 상태를 바꾸지 않고 멈춘다")
+    @DisplayName("중간에 멈춘 청크의 건너뜀 · 실패는 요약에 넣지 않는다 — 그 원문은 대기에 그대로임")
+    void 멈춘_청크는_세지_않음() {
+        ingest.add("skip-1", "fail-2", "skip-3", "down-4");
+
+        RunSummary summary = runner(2, 5).run(STARTED, null);
+
+        assertThat(summary.stop()).isEqualTo(Stop.LLM_UNAVAILABLE);
+        // 첫 청크(skip-1 · fail-2)만 셈 — 둘째 청크의 skip-3 은 되돌려 쓰지 않았음
+        assertThat(summary.fetched()).isEqualTo(2);
+        assertThat(summary.skipped()).isEqualTo(1);
+        assertThat(summary.failed()).isEqualTo(1);
+        assertThat(ingest.pending.values()).extracting(PendingDocument::sourceId).containsExactly("skip-3", "down-4");
+    }
+
+    @Test
+    @DisplayName("policy 가 받지 않으면 그 청크 상태를 바꾸지 않고 멈추며, 그 청크의 수는 요약에 없다")
     void 보내기_실패() {
-        ingest.add("send-1", "send-2");
+        UUID place = UUID.randomUUID();
+        ingest.add(new PendingDocument(UUID.randomUUID(), SourceType.PET_TOUR, "conf-a", place, Map.of(), "h1"));
+        ingest.add(new PendingDocument(UUID.randomUUID(), SourceType.PET_TOUR, "send-b", place, Map.of(), "h2"));
+        ingest.add("skip-3", "fail-4");
         policy.fail = true;
 
         RunSummary summary = runner(10, 5).run(STARTED, null);
 
         assertThat(summary.stop()).isEqualTo(Stop.INTERNAL_CALL);
         assertThat(ingest.done).isEmpty();
-        assertThat(ingest.pending).hasSize(2);
+        assertThat(ingest.pending).hasSize(4);
+        // 형제 · 충돌 · 건너뜀 · 실패를 보내기 전에 세 두면 원문은 대기인데 요약에는 처리된 것처럼 남음
+        assertThat(summary.fetched()).isZero();
+        assertThat(summary.sent()).isZero();
+        assertThat(summary.skipped()).isZero();
+        assertThat(summary.failed()).isZero();
+        assertThat(summary.conflicts()).isZero();
+        assertThat(summary.siblings()).isZero();
     }
 
     @Test
@@ -159,6 +186,22 @@ class ExtractRunnerTest {
         RunSummary summary = runner(10, 5).run(STARTED, null);
 
         assertThat(summary.siblings()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("가져간 사이 내용이 바뀌어 대기에 남은 원문이 다시 오면 형제로 세지 않는다")
+    void 같은_원문이_다시_옴() {
+        PendingDocument document = new PendingDocument(UUID.randomUUID(), SourceType.GOCAMPING, "send-1",
+                UUID.randomUUID(), Map.of(), "h1");
+        ingest.add(document);
+        ingest.changedOnce.add(document.id());
+
+        RunSummary summary = runner(10, 5).run(STARTED, null);
+
+        assertThat(summary.stop()).isEqualTo(Stop.DRAINED);
+        assertThat(summary.chunks()).isEqualTo(2);
+        assertThat(summary.statusSkipped()).isEqualTo(1);
+        assertThat(summary.siblings()).isZero();
     }
 
     @Test
@@ -228,6 +271,8 @@ class ExtractRunnerTest {
         final List<StatusMark> done = new ArrayList<>();
         final List<StatusMark> failed = new ArrayList<>();
         final List<Integer> requestedSizes = new ArrayList<>();
+        // 되돌려 쓸 때 한 번 "내용이 바뀌었다" 며 대기로 남길 원문 — 다음 쪽에 다시 옴
+        final Set<UUID> changedOnce = new HashSet<>();
         boolean stuck;
 
         void add(String... sourceIds) {
@@ -252,11 +297,18 @@ class ExtractRunnerTest {
             if (stuck) {
                 return new StatusResult(0, done.size() + failed.size());
             }
-            this.done.addAll(done);
+            int skipped = 0;
+            for (StatusMark mark : done) {
+                if (changedOnce.remove(mark.id())) {
+                    skipped++;
+                    continue;
+                }
+                this.done.add(mark);
+                pending.remove(mark.id());
+            }
             this.failed.addAll(failed);
-            done.forEach(mark -> pending.remove(mark.id()));
             failed.forEach(mark -> pending.remove(mark.id()));
-            return new StatusResult(done.size() + failed.size(), 0);
+            return new StatusResult(done.size() + failed.size() - skipped, skipped);
         }
     }
 
