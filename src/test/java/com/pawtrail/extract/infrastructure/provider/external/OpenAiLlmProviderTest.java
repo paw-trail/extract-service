@@ -39,7 +39,9 @@ class OpenAiLlmProviderTest {
     private static final String BASE = "https://openai.test/v1";
     private static final String COMPLETIONS = BASE + "/chat/completions";
     private static final LlmProperties.OpenAi SETTINGS =
-            new LlmProperties.OpenAi(BASE, "gpt-5.6-luna", "low", "test-key", 60);
+            new LlmProperties.OpenAi(BASE, "gpt-5.6-luna", "low", null, "test-key", 60);
+    private static final LlmProperties.OpenAi TWICE =
+            new LlmProperties.OpenAi(BASE, "gpt-5.6-luna", "medium", "high", "test-key", 60);
     private static final List<Segment> SEGMENTS = List.of(
             new Segment(1, "반려동물 제한사항", null, "맹견류 입장 불가"));
 
@@ -77,6 +79,35 @@ class OpenAiLlmProviderTest {
 
         server.verify();
         assertThat(answer.fields().breedRule()).isEqualTo(BreedRule.DANGEROUS_BANNED);
+    }
+
+    @Test
+    @DisplayName("두 번째 추론 강도가 없으면 한 번만 읽고 모델 이름도 그대로다")
+    void 한_번_읽기() {
+        assertThat(provider.readSecond(SEGMENTS)).isEmpty();
+        assertThat(provider.modelName()).isEqualTo("gpt-5.6-luna");
+        server.verify();
+    }
+
+    @Test
+    @DisplayName("두 번째 읽기는 모델 · 프롬프트는 그대로 두고 추론 강도만 바꿔 부른다")
+    void 두_번째_읽기() {
+        RestClient.Builder builder = RestClient.builder().baseUrl(BASE);
+        MockRestServiceServer twiceServer = MockRestServiceServer.bindTo(builder).build();
+        OpenAiLlmProvider twice = new OpenAiLlmProvider(builder.build(), TWICE, JsonMapper.builder().build(),
+                new LlmRetry(3, 1000, waits::add));
+        twiceServer.expect(requestTo(COMPLETIONS))
+                .andExpect(jsonPath("$.model").value("gpt-5.6-luna"))
+                .andExpect(jsonPath("$.reasoning_effort").value("high"))
+                .andExpect(jsonPath("$.messages[1].content").value("원문 조각\n[1] (반려동물 제한사항) 맹견류 입장 불가"))
+                .andRespond(withSuccess(response(ModelAnswers.answer()
+                        .value("breedRule", "DANGEROUS_BANNED").cite("breedRule", 1).json(), "stop", null),
+                        MediaType.APPLICATION_JSON));
+
+        assertThat(twice.readSecond(SEGMENTS)).isPresent();
+        // policy 의 추출 기록에 두 번 읽은 행인지 남고, 평가 보고서도 한 번 읽기 것을 덮지 않음
+        assertThat(twice.modelName()).isEqualTo("gpt-5.6-luna medium+high");
+        twiceServer.verify();
     }
 
     @Test

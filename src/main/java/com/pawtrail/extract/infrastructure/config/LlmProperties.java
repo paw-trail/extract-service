@@ -108,6 +108,9 @@ public record LlmProperties(
      * @param model           모델 이름 — 추출 기록(extractedBy)에도 남음
      * @param reasoningEffort 추론에 쓰는 힘 — medium (정확도 평가에서 low 보다 재현율이 크게 높았고
      *                        high 와는 차이를 가려낼 수 없었음)
+     * @param secondReasoningEffort 두 번째 읽기의 추론 강도 — high · 비우면 한 번만 읽음
+     *                        두 읽기를 안전 쪽으로 합치면 허용을 넓히는 틀림이 절반으로 줄었음
+     *                        (정확도 평가 새 표본 40건 · 정규화 뒤 4칸 → 2칸)
      * @param apiKey          OPENAI_API_KEY 환경변수 — provider 가 openai 일 때만 검사
      * @param timeoutSeconds  호출 제한 시간
      */
@@ -121,6 +124,8 @@ public record LlmProperties(
 
             @NotBlank(message = "app.extract.llm.openai.reasoning-effort 가 필요합니다")
             String reasoningEffort,
+
+            String secondReasoningEffort,
 
             String apiKey,
 

@@ -6,6 +6,7 @@ import com.pawtrail.extract.application.support.RunSummary;
 import com.pawtrail.extract.application.support.RunSummary.Stop;
 import com.pawtrail.extract.domain.exception.InternalCallException;
 import com.pawtrail.extract.domain.exception.LlmUnavailableException;
+import com.pawtrail.extract.domain.model.MergedReading;
 import com.pawtrail.extract.domain.model.PendingDocument;
 import com.pawtrail.extract.domain.model.PendingDocuments;
 import com.pawtrail.extract.domain.model.PolicyItem;
@@ -13,7 +14,9 @@ import com.pawtrail.extract.domain.model.StatusMark;
 import com.pawtrail.extract.domain.model.StatusResult;
 import com.pawtrail.extract.domain.provider.PolicyProvider;
 import com.pawtrail.extract.domain.provider.RawDocumentProvider;
+import com.pawtrail.extract.domain.rule.ConditionNormalizer;
 import com.pawtrail.extract.domain.rule.PolicyItemCheck;
+import com.pawtrail.extract.domain.rule.ReadingMerger;
 import com.pawtrail.extract.infrastructure.config.ExtractProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +51,11 @@ import java.util.UUID;
  * ingest · policy 호출 실패   그 청크 상태를 안 바꿈 — 보낸 것이 다시 뽑혀 한 번 더 보내질 뿐임
  * 두 청크 연달아 안 바뀜       멈춤 — 되돌려 쓰기가 먹지 않으면 같은 첫 쪽을 끝없이 돎
  * </pre>
+ *
+ * <b>같은 장소 · 같은 소스의 다른 원문(형제 원문)은 앞의 결과와 안전 쪽으로 합쳐 다시 보냅니다.</b>
+ * policy 는 장소 · 소스마다 한 행이라 그냥 보내면 나중 것이 앞의 것을 덮는데, 나중은 적재 순서라
+ * 이기는 쪽이 사실상 임의입니다. 모델 두 읽기와 같은 규칙(ReadingMerger)으로 합쳐 좁은 쪽이 남게 합니다.
+ * 한 실행 안에서만 모읍니다 — 증분 실행에서 한쪽만 다시 들어오면 합칠 짝이 없어 그 원문만으로 덮입니다.
  *
  * 실행 기록 표를 두지 않습니다. 어디까지 했는지는 ingest 원문 상태가 맡고,
  * 끝날 때 요약 로그 한 줄을 남깁니다.
@@ -109,9 +117,9 @@ public class ExtractRunner {
                       Tally tally, LlmReuse reuse) {
         int consecutiveFailures = 0;
         int idleChunks = 0;
-        // 장소 · 소스마다 처음 보낸 원문 — 다른 원문이 같은 자리로 오면 형제 원문
-        // 같은 원문이 다시 오는 것(가져간 사이 재수집으로 대기에 남았던 것)은 형제가 아님
-        Map<String, UUID> firstSent = new HashMap<>();
+        // 장소 · 소스마다 이 실행에서 보낸 결과 — 다른 원문이 같은 자리로 오면 형제 원문이라 합침
+        // 같은 원문이 다시 오는 것(가져간 사이 재수집으로 대기에 남았던 것)은 형제가 아니라 새 내용으로 바꿈
+        Map<String, Sent> sent = new HashMap<>();
 
         while (true) {
             int size = limit == null
@@ -129,10 +137,11 @@ public class ExtractRunner {
             // 이 청크의 수 — 보내고 되돌려 쓰기까지 끝난 뒤에만 실행 합계에 더함
             // 중간에 멈춘 청크는 원문 상태가 그대로라 합계에 넣으면 요약이 실제와 어긋남
             List<PolicyItem> items = new ArrayList<>();
+            // 이 청크 안에서 장소 · 소스마다 몇 번째 항목인지 — 형제를 합치면 그 자리를 바꿔 끼움
+            Map<String, Integer> itemIndex = new HashMap<>();
             List<StatusMark> done = new ArrayList<>();
             List<StatusMark> failed = new ArrayList<>();
             int skipped = 0;
-            int conflicts = 0;
             int siblings = 0;
             boolean tooManyFailures = false;
 
@@ -140,16 +149,27 @@ public class ExtractRunner {
                 DocumentOutcome outcome = extraction.extract(document, reuse);
                 switch (outcome.kind()) {
                     case SEND -> {
-                        items.add(outcome.item());
-                        done.add(document.mark());
-                        conflicts += outcome.item().conflicts().size();
-                        consecutiveFailures = 0;
-                        UUID first = firstSent.putIfAbsent(document.placeId() + "/" + document.source(), document.id());
-                        if (first != null && !first.equals(document.id())) {
+                        String key = document.placeId() + "/" + document.source();
+                        PolicyItem item = outcome.item();
+                        Sent earlier = sent.get(key);
+                        if (earlier != null && !earlier.documentId().equals(document.id())) {
+                            MergedReading merged = ConditionNormalizer.normalize(
+                                    ReadingMerger.merge(earlier.reading(), readingOf(item)));
+                            item = PolicyItem.of(document.placeId(), document.source(), merged);
                             siblings++;
-                            log.info("같은 장소 · 같은 소스의 원문을 한 실행에서 두 번 보냅니다. 나중 것이 이깁니다. "
+                            log.info("같은 장소 · 같은 소스의 원문을 앞의 원문과 안전 쪽으로 합쳐 다시 보냅니다. "
                                     + "장소={} 소스={} 원문={}", document.placeId(), document.source(), document.sourceId());
                         }
+                        sent.put(key, new Sent(document.id(), readingOf(item)));
+                        Integer index = itemIndex.get(key);
+                        if (index == null) {
+                            itemIndex.put(key, items.size());
+                            items.add(item);
+                        } else {
+                            items.set(index, item);
+                        }
+                        done.add(document.mark());
+                        consecutiveFailures = 0;
                     }
                     case SKIPPED -> {
                         done.add(document.mark());
@@ -169,6 +189,7 @@ public class ExtractRunner {
                 }
             }
 
+            int conflicts = items.stream().mapToInt(item -> item.conflicts().size()).sum();
             if (!items.isEmpty()) {
                 policies.bulk(extractedBy, promptVersion, startedAt, items);
             }
@@ -215,6 +236,14 @@ public class ExtractRunner {
     private static String format(Duration elapsed) {
         long seconds = elapsed.toSeconds();
         return "%d시간 %d분 %d초".formatted(seconds / 3600, (seconds % 3600) / 60, seconds % 60);
+    }
+
+    private static MergedReading readingOf(PolicyItem item) {
+        return new MergedReading(item.fields(), item.evidence(), item.conflicts(), item.method());
+    }
+
+    // 이 실행에서 한 장소 · 소스로 보낸 결과와 그것을 낸 원문 — 형제 원문이 오면 이것과 합침
+    private record Sent(UUID documentId, MergedReading reading) {
     }
 
     // 실행 한 번 동안 늘어나는 수 — 끝의 요약이 됨

@@ -5,6 +5,7 @@ import com.pawtrail.extract.application.support.LlmReuse;
 import com.pawtrail.extract.application.support.RunSummary;
 import com.pawtrail.extract.application.support.RunSummary.Stop;
 import com.pawtrail.extract.domain.enums.ExtractionMethod;
+import com.pawtrail.extract.domain.enums.SizeRule;
 import com.pawtrail.extract.domain.enums.SourceType;
 import com.pawtrail.extract.domain.exception.InternalCallException;
 import com.pawtrail.extract.domain.exception.LlmUnavailableException;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <pre>
  * send-   보낼 항목   ·   conf-  충돌 하나 달린 항목   ·   skip-  보내지 않고 완료
  * fail-   문서 탓 실패  ·   down-  모델을 부를 수 없음
+ * wide-   실외 가능만    ·   small- 실외 가능 + 소형견만 (형제 원문 합치기를 볼 때)
  * </pre>
  * ingest 흉내는 되돌려 쓴 원문을 대기에서 빼므로 진짜처럼 언제나 첫 쪽을 줍니다.
  */
@@ -189,6 +191,42 @@ class ExtractRunnerTest {
     }
 
     @Test
+    @DisplayName("형제 원문은 앞의 결과와 안전 쪽으로 합쳐 다시 보낸다 — 다른 청크여도")
+    void 형제_원문_합치기() {
+        UUID place = UUID.randomUUID();
+        ingest.add(new PendingDocument(UUID.randomUUID(), SourceType.GOCAMPING, "small-102186", place, Map.of(), "h1"));
+        ingest.add("send-x");
+        ingest.add(new PendingDocument(UUID.randomUUID(), SourceType.GOCAMPING, "wide-3174", place, Map.of(), "h2"));
+
+        RunSummary summary = runner(2, 5).run(STARTED, null);
+
+        // 둘째 청크에서 나중 원문("가능")을 보낼 때 앞 원문("가능(소형견)")과 합쳐 소형견만이 남음
+        PolicyItem last = policy.batches.get(1).stream()
+                .filter(item -> item.placeId().equals(place))
+                .findFirst().orElseThrow();
+        assertThat(last.fields().sizeRule()).isEqualTo(SizeRule.SMALL_ONLY);
+        assertThat(last.fields().outdoorAllowed()).isTrue();
+        assertThat(summary.siblings()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("같은 청크의 형제 원문은 항목 하나로 바꿔 끼워 보낸다")
+    void 같은_청크_형제() {
+        UUID place = UUID.randomUUID();
+        ingest.add(new PendingDocument(UUID.randomUUID(), SourceType.GOCAMPING, "wide-3174", place, Map.of(), "h1"));
+        ingest.add(new PendingDocument(UUID.randomUUID(), SourceType.GOCAMPING, "small-102186", place, Map.of(), "h2"));
+
+        RunSummary summary = runner(10, 5).run(STARTED, null);
+
+        assertThat(policy.batches).hasSize(1);
+        assertThat(policy.batches.getFirst()).hasSize(1);
+        assertThat(policy.batches.getFirst().getFirst().fields().sizeRule()).isEqualTo(SizeRule.SMALL_ONLY);
+        assertThat(summary.sent()).isEqualTo(1);
+        assertThat(summary.fetched()).isEqualTo(2);
+        assertThat(ingest.done).hasSize(2);
+    }
+
+    @Test
     @DisplayName("가져간 사이 내용이 바뀌어 대기에 남은 원문이 다시 오면 형제로 세지 않는다")
     void 같은_원문이_다시_옴() {
         PendingDocument document = new PendingDocument(UUID.randomUUID(), SourceType.GOCAMPING, "send-1",
@@ -259,8 +297,14 @@ class ExtractRunnerTest {
             List<IntraConflict> conflicts = id.startsWith("conf-")
                     ? List.of(new IntraConflict("scope", "불가능", "소형견만"))
                     : List.of();
+            ConditionFields fields = ConditionFields.empty();
+            if (id.startsWith("wide-")) {
+                fields = ConditionFields.builder().outdoorAllowed(true).build();
+            } else if (id.startsWith("small-")) {
+                fields = ConditionFields.builder().outdoorAllowed(true).sizeRule(SizeRule.SMALL_ONLY).build();
+            }
             return DocumentOutcome.send(new PolicyItem(document.placeId(), document.source(),
-                    ConditionFields.empty(), List.of(), conflicts, ExtractionMethod.RULE));
+                    fields, List.of(), conflicts, ExtractionMethod.RULE));
         }
     }
 
