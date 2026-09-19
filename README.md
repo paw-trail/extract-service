@@ -1721,6 +1721,7 @@ JDK HttpClient 기반 팩터리로 붙입니다.
 | `-D` 인자를 따옴표 없이 넘김 | `Task '.extract.llm.provider=openai' not found` — 첫 점에서 잘림 | `./gradlew llmEval "-Dapp.extract.llm.provider=openai"` |
 | `curl` 에 JSON 을 `-d '{"limit":20}'` 로 넘김 | PowerShell 이 따옴표를 먹어 400 | 본문을 파일로 쓰고 `-d "@파일"` ([1-7](#1-7-⑥-20건만-불러-보기)) |
 | `curl` | PowerShell 의 `curl` 은 다른 명령의 별명 | `curl.exe` |
+| 로그에서 `ERROR` 를 찾음 | `Select-String` 이 대소문자를 안 가려 "errors" 가 든 정상 경고까지 걸림 | `Select-String -Pattern "ERROR" -CaseSensitive` |
 
 ---
 
@@ -1740,6 +1741,7 @@ JDK HttpClient 기반 팩터리로 붙입니다.
 | 로그 | 뜻 |
 |---|---|
 | `Spans were dropped due to exceptions` | 관측 스택(Zipkin)을 안 띄워 추적 정보를 못 보냄 — 동작과 무관 |
+| `ERROR in com.github.loki4j … Error while sending Batch … to Loki` | 컨테이너(dev 프로파일)가 로그를 Loki 로도 보내는데 관측 스택을 안 띄움 — 동작과 무관 |
 | `Spring Cloud LoadBalancer is currently working with the default cache` | 기동할 때마다 나오는 안내 |
 | `SpringDoc /v3/api-docs endpoint is enabled by default` | 기동할 때마다 나오는 안내 |
 | 상태 확인의 유레카 설명 `has not yet successfully connected` | 기동 직후 목록을 아직 한 번 못 받은 것 — 등록은 따로 확인 |
