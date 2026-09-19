@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -96,6 +97,55 @@ class LlmExtractorTest {
     }
 
     @Test
+    @DisplayName("두 번 읽도록 설정되면 두 읽기를 각각 근거 검사한 뒤 안전 쪽으로 합친다")
+    void 두_번_읽기() {
+        provider.answer = new LlmAnswer(
+                ConditionFields.builder().sizeRule(SizeRule.ALL).leashRequired(true).build(),
+                List.of(new LlmCitation("sizeRule", List.of(1)), new LlmCitation("leashRequired", List.of(2))));
+        provider.second = new LlmAnswer(
+                ConditionFields.builder().sizeRule(SizeRule.SMALL_ONLY).build(),
+                List.of(new LlmCitation("sizeRule", List.of(1))));
+
+        LlmReading reading = extractor.extract(List.of(
+                new SourceText("acmpyPsblCpam", "소형견 동반 가능"),
+                new SourceText("acmpyNeedMtr", "목줄 착용")), new LlmReuse());
+
+        assertThat(provider.received).hasSize(1);
+        assertThat(provider.secondReceived).hasSize(1);
+        // 크기는 좁은 쪽 · 목줄은 한쪽만 필요라 해도 필요
+        assertThat(reading.fields().sizeRule()).isEqualTo(SizeRule.SMALL_ONLY);
+        assertThat(reading.fields().leashRequired()).isTrue();
+    }
+
+    @Test
+    @DisplayName("두 번째 읽기만 실패해도 그 문서는 실패다 — 한 번 읽기로 조용히 보내지 않는다")
+    void 두_번째_읽기_실패() {
+        provider.answer = new LlmAnswer(ConditionFields.empty(), List.of());
+        provider.secondFailure = new LlmDocumentException(LlmDocumentException.Reason.TRUNCATED, "잘림");
+
+        assertThatThrownBy(() -> extractor.extract(
+                List.of(new SourceText("반려동물 제한사항", "목줄, 배변봉투")), new LlmReuse()))
+                .isInstanceOf(LlmDocumentException.class);
+    }
+
+    @Test
+    @DisplayName("재사용은 합친 결과를 담아, 같은 입력이면 두 읽기 모두 다시 부르지 않는다")
+    void 두_번_읽기_재사용() {
+        provider.answer = new LlmAnswer(ConditionFields.empty(), List.of());
+        provider.second = new LlmAnswer(ConditionFields.empty(), List.of());
+        LlmReuse reuse = new LlmReuse();
+        List<SourceText> texts = List.of(new SourceText("반려동물 제한사항", "목줄, 배변봉투"));
+
+        extractor.extract(texts, reuse);
+        extractor.extract(texts, reuse);
+
+        assertThat(provider.received).hasSize(1);
+        assertThat(provider.secondReceived).hasSize(1);
+        assertThat(reuse.calls()).isEqualTo(1);
+        assertThat(reuse.reused()).isEqualTo(1);
+    }
+
+    @Test
     @DisplayName("추출 기록에 남길 모델 이름과 프롬프트 판을 구현에서 가져온다")
     void 기록_값() {
         assertThat(extractor.modelName()).isEqualTo("fake-model");
@@ -105,8 +155,12 @@ class LlmExtractorTest {
     private static class FakeProvider implements LlmProvider {
 
         private final List<List<Segment>> received = new ArrayList<>();
+        private final List<List<Segment>> secondReceived = new ArrayList<>();
         private LlmAnswer answer = new LlmAnswer(ConditionFields.empty(), List.of());
         private RuntimeException failure;
+        // 두 번째 읽기 — 비어 있으면 한 번만 읽는 설정
+        private LlmAnswer second;
+        private RuntimeException secondFailure;
 
         @Override
         public LlmAnswer read(List<Segment> segments) {
@@ -115,6 +169,18 @@ class LlmExtractorTest {
                 throw failure;
             }
             return answer;
+        }
+
+        @Override
+        public Optional<LlmAnswer> readSecond(List<Segment> segments) {
+            if (second == null && secondFailure == null) {
+                return Optional.empty();
+            }
+            secondReceived.add(segments);
+            if (secondFailure != null) {
+                throw secondFailure;
+            }
+            return Optional.of(second);
         }
 
         @Override

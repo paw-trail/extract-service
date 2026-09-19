@@ -13,6 +13,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * OpenAI(/v1/chat/completions)로 조건을 읽습니다.
@@ -49,19 +50,32 @@ public class OpenAiLlmProvider implements LlmProvider {
 
     @Override
     public LlmAnswer read(List<Segment> segments) {
+        return ask(segments, settings.reasoningEffort());
+    }
+
+    /**
+     * 추론 강도만 바꿔 같은 조각을 한 번 더 읽습니다. 모델 · 프롬프트 · 스키마는 첫 읽기와 같습니다.
+     */
+    @Override
+    public Optional<LlmAnswer> readSecond(List<Segment> segments) {
+        if (!readsTwice()) {
+            return Optional.empty();
+        }
+        return Optional.of(ask(segments, settings.secondReasoningEffort()));
+    }
+
+    private LlmAnswer ask(List<Segment> segments, String reasoningEffort) {
         OpenAiChatRequest request = new OpenAiChatRequest(
                 settings.model(),
-                settings.reasoningEffort(),
+                reasoningEffort,
                 List.of(new OpenAiChatRequest.Message("system", LlmPrompt.SYSTEM),
                         new OpenAiChatRequest.Message("user", LlmPrompt.userMessage(segments))),
                 responseFormat());
-
         OpenAiChatResponse response = retry.call(() -> restClient.post()
                 .uri("/chat/completions")
                 .body(request)
                 .retrieve()
                 .body(OpenAiChatResponse.class));
-
         if (response == null || response.choices() == null || response.choices().isEmpty()) {
             throw new LlmDocumentException(LlmDocumentException.Reason.INVALID_ANSWER, "OpenAI 응답에 선택지가 없습니다");
         }
@@ -79,9 +93,22 @@ public class OpenAiLlmProvider implements LlmProvider {
         return LlmAnswerParser.parse(jsonMapper, choice.message().content());
     }
 
+    /**
+     * 두 번 읽을 때는 두 추론 강도를 이름에 붙입니다 — gpt-5.6-luna medium+high.
+     *
+     * policy 의 추출 기록에 두 번 읽은 행인지가 남고,
+     * 정확도 평가 보고서도 이름으로 파일을 지어 한 번 읽기 보고서를 덮지 않습니다.
+     */
     @Override
     public String modelName() {
-        return settings.model();
+        if (!readsTwice()) {
+            return settings.model();
+        }
+        return settings.model() + " " + settings.reasoningEffort() + "+" + settings.secondReasoningEffort();
+    }
+
+    private boolean readsTwice() {
+        return settings.secondReasoningEffort() != null && !settings.secondReasoningEffort().isBlank();
     }
 
     @Override
